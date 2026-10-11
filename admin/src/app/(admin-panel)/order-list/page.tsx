@@ -13,14 +13,18 @@ interface Props {
 }
 
 export default async function OrdersPage({ searchParams }: Props) {
-  const page = Array.isArray(searchParams.page)
-    ? searchParams.page[0]
-    : searchParams.page || "1";
-  const limit = Array.isArray(searchParams.limit)
-    ? searchParams.limit[0]
-    : searchParams.limit || "10";
+  const resolvedSearchParams = await Promise.resolve(searchParams);
+  const page = Array.isArray(resolvedSearchParams.page)
+    ? resolvedSearchParams.page[0]
+    : resolvedSearchParams.page || "1";
+  const limit = Array.isArray(resolvedSearchParams.limit)
+    ? resolvedSearchParams.limit[0]
+    : resolvedSearchParams.limit || "10";
+  const search = Array.isArray(resolvedSearchParams.search)
+    ? resolvedSearchParams.search[0]
+    : resolvedSearchParams.search || "";
 
-  const { data } = await getOrderWithPagination(page, limit);
+  const { data } = await getOrderWithPagination(page, limit, search);
 
   return (
     <ContentLayout title="Order">

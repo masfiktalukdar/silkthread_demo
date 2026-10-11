@@ -8,7 +8,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { apiBaseUrl } from "@/config/config";
+import { apiBaseUrl, getImageUrl } from "@/config/config";
 import { getUser } from "@/services/auth";
 import { addToCart } from "@/services/cart";
 
@@ -182,7 +182,7 @@ const ProductDialog: React.FC<Product> = ({
               <div>
                 {thumbnailImage && (
                   <Image
-                    src={apiBaseUrl + thumbnailImage}
+                    src={getImageUrl(thumbnailImage)}
                     alt={name}
                     width={200}
                     height={200}
@@ -194,7 +194,7 @@ const ProductDialog: React.FC<Product> = ({
                 {thumbnailImage && (
                   <motion.div ref={imageRef} animate={controls}>
                     <Image
-                      src={apiBaseUrl + thumbnailImage}
+                      src={getImageUrl(thumbnailImage)}
                       alt={name}
                       width={200}
                       height={200}

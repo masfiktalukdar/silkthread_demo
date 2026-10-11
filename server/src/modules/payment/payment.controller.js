@@ -4,7 +4,7 @@ const responseHandler = require("../../utils/responseHandler.js");
 const withTransaction = require("../../middleware/transactions/withTransaction.js");
 const PaymentService = require("./payment.service.js");
 const Email = require("../../utils/Email.js");
-
+const config = require("../../config/config.js");
 
 class PaymentController {
   createUserPayment = withTransaction(async (req, res, next, session) => {
@@ -66,7 +66,7 @@ class PaymentController {
 
       
       if (booking) {
-        const successUrl = `${process.env.CLIENT_BASE_URL}/payment-success?bookingId=${bookingId}`;
+        const successUrl = `${config.clientBaseURL}/payment-success?bookingId=${bookingId}`;
         return res.redirect(successUrl);
       } else {
         return res.status(404).send("Booking not found.");
@@ -84,7 +84,7 @@ class PaymentController {
       }
       const booking = await PaymentService.handlePaymentFail(bookingId);
       if (booking) {
-        const failedUrl = `${process.env.CLIENT_BASE_URL}/payment-fail?bookingId=${bookingId}`;
+        const failedUrl = `${config.clientBaseURL}/payment-fail?bookingId=${bookingId}`;
         return res.redirect(failedUrl);
       } else {
         return res.status(404).send("Booking not found.");
@@ -103,7 +103,7 @@ class PaymentController {
       }
       const booking = await PaymentService.handlePaymentCancel(bookingId);
       if (booking) {
-        const cancelUrl = `${process.env.CLIENT_BASE_URLs}/payment-cancel?bookingId=${bookingId}`;
+        const cancelUrl = `${config.clientBaseURL}/payment-cancel?bookingId=${bookingId}`;
         return res.redirect(cancelUrl);
       } else {
         return res.status(404).send("Product not found.");

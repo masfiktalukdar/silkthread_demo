@@ -13,9 +13,13 @@ class UserController {
       email: req?.body?.email,
       phone: req?.body?.phone,
       password: req?.body?.password,
-      address: req?.body?.address,
-      state: req?.body?.state,
-      city: req?.body?.city,
+      address: req?.body?.address || req?.body?.fullAddress,
+      state: req?.body?.state || req?.body?.division,
+      city: req?.body?.city || req?.body?.district,
+      division: req?.body?.division || req?.body?.state,
+      district: req?.body?.district || req?.body?.city,
+      thana: req?.body?.thana,
+      fullAddress: req?.body?.fullAddress || req?.body?.address,
       roleRef: req?.body?.roleRef,
       warehouseRef: req?.body?.warehouseRef,
     };
@@ -67,14 +71,18 @@ class UserController {
       email: req?.body?.email,
       phone: req?.body?.phone,
       password: req?.body?.password,
-      address: req?.body?.address,
-      state: req?.body?.state,
-      city: req?.body?.city,
+      address: req?.body?.address || req?.body?.fullAddress,
+      state: req?.body?.state || req?.body?.division,
+      city: req?.body?.city || req?.body?.district,
+      division: req?.body?.division || req?.body?.state,
+      district: req?.body?.district || req?.body?.city,
+      thana: req?.body?.thana,
+      fullAddress: req?.body?.fullAddress || req?.body?.address,
       roleRef: req?.body?.roleRef,
       warehouseRef: req?.body?.warehouseRef,
     };
     const userResult = await UserService.updateUser(id, payload, payloadFiles, session);
-    const resDoc = responseHandler(201, "User Update successfully");
+    const resDoc = responseHandler(200, "User Update successfully", userResult);
     res.status(resDoc.statusCode).json(resDoc);
   });
 

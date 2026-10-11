@@ -25,7 +25,7 @@ class ProductRepository extends BaseRepository {
   }
 
   async updateProduct(id, payload) {
-    const updatedProduct = await this.#model.findByIdAndUpdate(id, payload);
+    const updatedProduct = await this.#model.findByIdAndUpdate(id, payload, { new: true });
     if (!updatedProduct) {
       throw new Error("About Us not found");
     }
@@ -38,6 +38,8 @@ class ProductRepository extends BaseRepository {
         sortBy = "createdAt",
         minPrice,
         maxPrice,
+        search,
+        searchTerm,
         categoryId,
         categorySlug,
         subCategoryId,
@@ -173,6 +175,31 @@ class ProductRepository extends BaseRepository {
         filter.$or = orCategoryFilters;
       }
 
+      // Search filter (name, description, productId, slug)
+      const searchValue = search || searchTerm;
+      if (searchValue && typeof searchValue === "string" && searchValue.trim() !== "") {
+        const trimmedSearch = searchValue.trim();
+        const searchRegex = new RegExp(trimmedSearch, "i");
+        const searchConditions = [
+          { name: { $regex: searchRegex } },
+          { description: { $regex: searchRegex } },
+          { productId: { $regex: searchRegex } },
+          { slug: { $regex: searchRegex } },
+        ];
+        
+        if (filter.$or) {
+          filter.$and = [
+            { $or: filter.$or },
+            { $or: searchConditions },
+          ];
+          delete filter.$or;
+        } else if (filter.$and) {
+          filter.$and.push({ $or: searchConditions });
+        } else {
+          filter.$or = searchConditions;
+        }
+      }
+
       if (brandId) {
         filter.brandRef = new mongoose.Types.ObjectId(String(brandId));
       }
@@ -267,7 +294,7 @@ class ProductRepository extends BaseRepository {
               { path: "brandRef" },
               { path: "inventoryRef" },
             ]);
-          const totalProducts = await this.#model.countDocuments();
+          const totalProducts = await this.#model.countDocuments(filter);
           return { doc: product, totalDoc: totalProducts };
         }
       );
@@ -549,15 +576,20 @@ class ProductRepository extends BaseRepository {
     return data;
   }
   async getAllProductForHomePage(payload) {
-    const { limit = 10, subCategoryRef } = payload;
+    const { limit, subCategoryRef } = payload;
 
-    const product = await this.#model
+    let query = this.#model
       .find({
         subCategoryRef: subCategoryRef,
       })
-      .limit(limit)
       .populate("inventoryRef")
       .sort({ createdAt: -1 });
+
+    if (limit) {
+      query = query.limit(parseInt(limit));
+    }
+
+    const product = await query;
     return product;
   }
 

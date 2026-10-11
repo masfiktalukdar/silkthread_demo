@@ -8,10 +8,10 @@ import { getUser } from "@/services/auth";
 
 const SubCategory = async () => {
   const user = await getUser();
-  const { data } = await getAllProductsForShop();
+  const { data } = await getAllProductsForShop(undefined, undefined, undefined, 1, 100);
  
   return (
-    <div className=" lg:w-10/12 w-11/12 lg:px-16 px-0 mx-auto ">
+    <div className="Container pt-4 pb-2 sm:pt-6 sm:pb-3">
       <ProductListClient 
         products={data.result} 
         title="New Arrivals"

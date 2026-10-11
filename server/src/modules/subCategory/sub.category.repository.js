@@ -13,15 +13,10 @@ class SubCategoryRepository extends BaseRepository {
   async createSubCategory(payload, session) {
     const { viewType } = payload;
     if (viewType) {
-      const validViewTypes = ["top", "middle", "lowerMiddle", "buttom"];
+      const validViewTypes = ["top", "middle", "lowerMiddle", "buttom", "bottom"];
       if (!validViewTypes.includes(viewType)) {
         throw new Error("Invalid viewType provided");
       }
-      await this.#model.findOneAndUpdate(
-        {  viewType: viewType },
-        { viewType: '' },
-        { new: true, session }
-      );
     }
     const newSubCategory = await this.#model.create([payload], { session });
     return newSubCategory;
@@ -30,15 +25,10 @@ class SubCategoryRepository extends BaseRepository {
   async updateSubCategory(id, payload, session) {
     const { viewType } = payload;
     if (viewType) {
-      const validViewTypes = ["top", "middle", "lowerMiddle", "buttom"];
+      const validViewTypes = ["top", "middle", "lowerMiddle", "buttom", "bottom"];
       if (!validViewTypes.includes(viewType)) {
         throw new Error("Invalid viewType provided");
       }
-      await this.#model.findOneAndUpdate(
-        {viewType: viewType },
-        { viewType: '' },
-        { new: true, session }
-      );
     }
     const updatedSubCategory = await this.#model.findByIdAndUpdate(
       id,
@@ -47,9 +37,19 @@ class SubCategoryRepository extends BaseRepository {
     );
 
     if (!updatedSubCategory) {
-      throw new Error("About Us not found");
+      throw new Error("SubCategory not found");
     }
     return updatedSubCategory;
+  }
+
+  async findByViewType(viewType) {
+    const viewTypeQueries =
+      viewType === "bottom" || viewType === "buttom"
+        ? ["bottom", "buttom"]
+        : [viewType];
+    return await this.#model
+      .find({ viewType: { $in: viewTypeQueries }, status: true })
+      .sort({ createdAt: 1 });
   }
 
   async getSubCategoryWithPagination(payload) {

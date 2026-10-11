@@ -12,13 +12,15 @@ ShippingMethodRoute.route("/")
   .post(upload.any(), controller.createShippingMethod)
   .get(controller.getAllShippingMethod);
 
+ShippingMethodRoute.post("/create", upload.any(), controller.createShippingMethod);
+
 ShippingMethodRoute.get("/pagination", controller.getShippingMethodWithPagination);
+
+ShippingMethodRoute.put("/status/:id", controller.updateShippingMethodStatus);
 
 ShippingMethodRoute.route("/:id")
   .get(controller.getSingleShippingMethod)
   .put(upload.any(), controller.updateShippingMethod)
   .delete(controller.deleteShippingMethod);
-
-ShippingMethodRoute.put("/status/:id", controller.updateShippingMethodStatus);
 
 module.exports = ShippingMethodRoute;

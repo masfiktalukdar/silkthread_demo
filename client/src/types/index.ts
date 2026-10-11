@@ -139,6 +139,14 @@ export type TUser = {
   id: string;
   name: string;
   email: string;
+  phone?: string;
+  division?: string;
+  district?: string;
+  thana?: string;
+  fullAddress?: string;
+  address?: string;
+  city?: string;
+  state?: string;
   roleRef: string;
   role: string;
   warehouseRef: string | null;

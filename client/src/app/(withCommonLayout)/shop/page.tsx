@@ -38,10 +38,19 @@ export default async function ShopPage({
     ? params.childCategory[0]
     : params.childCategory || "";
 
+  const searchTerm = Array.isArray(params.searchTerm)
+    ? params.searchTerm[0]
+    : params.searchTerm || (Array.isArray(params.search) ? params.search[0] : params.search) || "";
+
+  const page = Number(params.page) || 1;
+
   const { data: products } = await getAllProductsForShop(
     categorySlug,
     subCategorySlug,
-    childCategorySlug
+    childCategorySlug,
+    page,
+    20,
+    searchTerm
   );
 
   const user = await getUser();
@@ -51,14 +60,14 @@ export default async function ShopPage({
 
   const { data: banners } = await getAllBanners();
 
-  const sortedData = [...products.result].sort((a, b) => (a.priority === b.priority ? 0 : a.priority ? -1 : 1));
+  const sortedData = [...(products?.result || [])].sort((a, b) => (a.priority === b.priority ? 0 : a.priority ? -1 : 1));
   
 
   return (
     <>
       {/* <NavBar userCartProducts={cartProducts?.data} /> */}
-      <div className="flex min-h-screen Container mt-20">
-        <div className="w-[20%] hidden lg:block mt-6">
+      <div className="flex min-h-screen Container mt-4 sm:mt-6">
+        <div className="w-[20%] hidden lg:block mt-2">
           <ShopProductsCategories shopSideBar={shopSideBar} />
         </div>
         <div className="flex-1">
@@ -68,6 +77,7 @@ export default async function ShopPage({
             categorySlug={categorySlug}
             subCategorySlug={subCategorySlug}
             childCategorySlug={childCategorySlug}
+            searchTerm={searchTerm}
           />
         </div>
         <CartSideBar cartProducts={cartProducts?.data} />

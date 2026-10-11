@@ -35,6 +35,18 @@ const Userschema = new Schema(
     state: {
       type: String,
     },
+    division: {
+      type: String,
+    },
+    district: {
+      type: String,
+    },
+    thana: {
+      type: String,
+    },
+    fullAddress: {
+      type: String,
+    },
     roleRef: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "role",

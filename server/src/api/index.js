@@ -44,12 +44,11 @@ rootRouter.use("/newsletter", NewsletterRouter);
 rootRouter.use("/sub-category", SubCategoryRouter);
 rootRouter.use("/child-category", ChildCategoryRouter);
 rootRouter.use("/sub-child-category", SubChildCategoryRouter);
-rootRouter.use("/shipping-method", PaymentServiceConfigRouter);
-rootRouter.use("/payment-service-config", ShippingMethodRouter);
+rootRouter.use("/shipping-method", ShippingMethodRouter);
+rootRouter.use("/shippingMethod", ShippingMethodRouter);
+rootRouter.use("/payment-service-config", PaymentServiceConfigRouter);
 rootRouter.use("/payment", Payment);
 rootRouter.use("/role", RoleRouter);
-rootRouter.use("/shipping-method", ShippingMethodRouter);
-rootRouter.use("/payment-service-config", PaymentServiceConfigRouter);
 rootRouter.use("/user", UserRouter);
 rootRouter.use("/cart", CartRouter);
 rootRouter.use("/newsletter", CartRouter);
@@ -57,8 +56,27 @@ rootRouter.use("/product-review", ProductReviewRouter);
 rootRouter.use("/wish-list", WishlistRouter);
 rootRouter.use("/report", ReportRoute);
 rootRouter.use("/warehouse", WarehouseRoute);
+const CourierRouter = require("../modules/courier/courier.routes.js");
+
 rootRouter.use("/warehouse-transfer", WarehouseTransferRoute);
 rootRouter.use("/order-bulk", OrderBulkRoute);
 rootRouter.use("/campaign", CampaignRoute );
+rootRouter.use("/courier", CourierRouter);
+
+// Convenient root webhook aliases
+rootRouter.post("/webhooks/pathao", (req, res, next) => {
+  const courierController = require("../modules/courier/courier.controller.js");
+  return courierController.handlePathaoWebhook(req, res, next);
+});
+rootRouter.post("/webhooks/steadfast", (req, res, next) => {
+  const courierController = require("../modules/courier/courier.controller.js");
+  return courierController.handleSteadfastWebhook(req, res, next);
+});
+
+// Convenient order tracking alias
+rootRouter.get("/order/track/:identifier", (req, res, next) => {
+  const courierController = require("../modules/courier/courier.controller.js");
+  return courierController.trackOrderPublic(req, res, next);
+});
 
 module.exports = rootRouter;

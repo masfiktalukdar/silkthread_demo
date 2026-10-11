@@ -1,6 +1,6 @@
 "use client";
 
-import { apiBaseUrl } from "@/config/config";
+import { apiBaseUrl, getImageUrl } from "@/config/config";
 import { TBanner } from "@/types";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
@@ -18,12 +18,7 @@ const UpcomingSideBanner: React.FC<BannerProps> = ({ banners }) => {
     (banner) => banner.type === "UPCOMING BANNER"
   );
 
-  useEffect(() => {
-    // Trigger animation on mount
-    setTimeout(() => {
-      setIsOpen(true);
-    }, 100); // Slight delay for smooth slide-in
-  }, []);
+  if (!upcomingBanner || upcomingBanner.length === 0) return null;
 
   const handleClose = () => {
     setIsOpen(!isOpen);
@@ -75,7 +70,7 @@ const UpcomingSideBanner: React.FC<BannerProps> = ({ banners }) => {
               <div key={banner._id}>
                 <div className="border border-[#262626]/40 p-1 rounded">
                   <Image
-                    src={apiBaseUrl + banner.image}
+                    src={getImageUrl(banner.image)}
                     width={400}
                     height={200}
                     alt="demo"

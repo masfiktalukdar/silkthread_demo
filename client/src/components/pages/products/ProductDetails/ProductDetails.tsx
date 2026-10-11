@@ -6,13 +6,14 @@ import { rajdhani } from "@/app/font";
 import { FiPlus } from "react-icons/fi";
 import { FiMinus } from "react-icons/fi";
 import { TProduct } from "@/types";
-import { apiBaseUrl } from "@/config/config";
+import { apiBaseUrl, getImageUrl } from "@/config/config";
 import ProductDetailsSlide from "@/slider/ProductDetailsSlide/ProductDetailsSlide";
 import { addToCart } from "@/services/cart";
 import { toast } from "react-toastify";
 import { getUser } from "@/services/auth";
 import { useRouter } from "next/navigation";
 import { useAnimation } from "framer-motion";
+import { ArrowLeft, ShoppingCart, Zap } from "lucide-react";
 interface Props {
   product: TProduct;
 }
@@ -39,7 +40,6 @@ const ProductDetails: React.FC<Props> = ({ product }) => {
     name,
     thumbnailImage,
     backViewImage,
-    sizeChartImage,
     description,
     mrpPrice,
     price,
@@ -51,7 +51,7 @@ const ProductDetails: React.FC<Props> = ({ product }) => {
 
   // const userId = "67f4c99c11813048a36a2496";
 
-  const handleAddToCart = async () => {
+  const handleAddToCart = async (actionType: 'cart' | 'buy' = 'cart') => {
     const user = await getUser();
     // if not logged in then redirect to login page
     if (!user) {
@@ -100,8 +100,12 @@ const ProductDetails: React.FC<Props> = ({ product }) => {
       }
 
       await addToCart(product);
-      // router.push("/cart");
-      toast.success("Product added to cart!");
+      
+      if (actionType === 'buy') {
+        router.push('/checkout');
+      } else {
+        toast.success("Product added to cart!");
+      }
       setLevelError(false);
       setColorError(false);
       controls.start({
@@ -121,9 +125,34 @@ const ProductDetails: React.FC<Props> = ({ product }) => {
   };
   
 
+  const handleBack = (e: React.MouseEvent | React.TouchEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (typeof window !== "undefined") {
+      if (window.history.length > 1) {
+        window.history.back();
+      } else {
+        router.push("/shop");
+      }
+    }
+  };
+
   return (
-    <div className="Container  py-8  lg:mt-14 mt-16">
-      <div className="grid lg:grid-cols-2 gap-8 ">
+    <div className="Container pt-4 sm:pt-5 md:pt-6 pb-16">
+      {/* Top Left Back Button */}
+      <div className="mb-3 sm:mb-4">
+        <button
+          type="button"
+          onClick={handleBack}
+          className="inline-flex items-center gap-1.5 sm:gap-2 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-[2px] bg-gray-100 hover:bg-orange-50 text-gray-700 hover:text-[#FF6C0C] border border-gray-200 hover:border-orange-200 transition-all text-xs sm:text-sm font-semibold cursor-pointer active:scale-95 shadow-2xs group relative z-20 select-none touch-manipulation"
+          aria-label="Go back to previous page"
+        >
+          <ArrowLeft size={15} className="transition-transform group-hover:-translate-x-1" />
+          <span>পেছনে যান (Back)</span>
+        </button>
+      </div>
+
+      <div className="grid lg:grid-cols-2 gap-6 lg:gap-12 items-start">
         <ProductDetailsSlide
           controls={controls}
           thumbnailImage={thumbnailImage}
@@ -177,7 +206,7 @@ const ProductDetails: React.FC<Props> = ({ product }) => {
                             setSelectedColor(null);
                             setLevelError(false);
                           }}
-                          className={`w-[40px] h-[30px] border border-[#FF6C0C] hover:text-[#FF6C0C] duration-300 cursor-pointer rounded text-center flex items-center justify-center uppercase ${level === size.level ? "bg-primary text-white" : "border-primary"
+                          className={`w-[40px] h-[30px] border border-[#FF6C0C] hover:text-[#FF6C0C] duration-300 cursor-pointer rounded-[2px] text-center flex items-center justify-center uppercase ${level === size.level ? "bg-primary text-white" : "border-primary"
                             }`}
                         >
                           {size.level}
@@ -238,56 +267,51 @@ const ProductDetails: React.FC<Props> = ({ product }) => {
           </div>
 
           <div className="border-b-2 pb-4 border-[#FF6C0C]">
-            <div className="mt-4 flex items-center gap-2 ">
-              <div className="flex items-center justify-between border border-[#FF6C0C] rounded px-3 py-[7px] md:w-[25%] w-[30%]">
-                <p onClick={handleDecrement} className="cursor-pointer">
-                  <FiMinus />
-                </p>
-                <span>{count}</span>
-                <p onClick={handleIncrement} className="cursor-pointer">
-                  <FiPlus />
-                </p>
-              </div>
-              <div className="w-full cursor-pointer">
+            <div className="mt-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3">
+              {/* Quantity Selector */}
+              <div className="flex items-center justify-between border-2 border-orange-200/80 bg-orange-50/40 rounded-[2px] px-3.5 py-2 sm:w-[130px] shrink-0">
                 <button
-                  onClick={handleAddToCart}
-                  className="bg-[#FF6C0C] flex items-center gap-1 px-6 py-2.5 font-semibold text-sm  rounded text-[#fff] cursor-pointer"
+                  type="button"
+                  onClick={handleDecrement}
+                  className="p-1 hover:bg-white rounded-[2px] transition-colors text-gray-700 hover:text-[#FF6C0C] cursor-pointer"
+                  aria-label="Decrease quantity"
                 >
-                  <span>
-                    <FiPlus />
-                  </span>
-                  <span>অর্ডার করুন </span>
+                  <FiMinus size={15} />
+                </button>
+                <span className="font-bold text-gray-900 text-sm sm:text-base px-2">{count}</span>
+                <button
+                  type="button"
+                  onClick={handleIncrement}
+                  className="p-1 hover:bg-white rounded-[2px] transition-colors text-gray-700 hover:text-[#FF6C0C] cursor-pointer"
+                  aria-label="Increase quantity"
+                >
+                  <FiPlus size={15} />
                 </button>
               </div>
-              {/* <div className="w-full cursor-pointer">
-                <button
-                  onClick={handleAddToCart}
-                  className="bg-[#FF6C0C] flex items-center gap-1 px-6 py-2.5 font-semibold text-sm  rounded text-[#fff] cursor-pointer"
-                >
-                  <span>
-                    <FiPlus />
-                  </span>
-                  <span>Order Via Whatsapp</span>
-                </button>
-              </div> */}
-            </div>
-          </div>
-          <div className="mt-3 flex flex-col gap-2">
-            <div dangerouslySetInnerHTML={{ __html: description }} />
-          </div>
 
-          <div className="mt-3">
-            <div className="mt-2">
-              {sizeChartImage && (
-                <Image
-                  src={apiBaseUrl + sizeChartImage}
-                  alt={`${name} sizeChartImage`}
-                  width={500}
-                  height={500}
-                  className="w-full h-full rounded"
-                />
-              )}
+              {/* Action Buttons: Add to Cart and Buy Now with Icons */}
+              <div className="grid grid-cols-2 gap-2 sm:gap-2.5 flex-1 w-full">
+                <button
+                  type="button"
+                  onClick={() => handleAddToCart('cart')}
+                  className="w-full bg-gray-800 hover:bg-gray-900 transition-all flex justify-center items-center gap-1.5 sm:gap-2 py-2.5 sm:py-3 px-2 sm:px-4 font-bold text-xs sm:text-sm rounded-[2px] text-white cursor-pointer hover:shadow-md active:scale-95 whitespace-nowrap min-w-0"
+                >
+                  <ShoppingCart size={16} className="shrink-0" />
+                  <span className="truncate">কার্টে রাখুন</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleAddToCart('buy')}
+                  className="w-full bg-linear-to-r from-[#FF6C0C] to-[#E55A00] hover:from-[#E55A00] hover:to-[#CC4F00] transition-all flex justify-center items-center gap-1.5 sm:gap-2 py-2.5 sm:py-3 px-2 sm:px-4 font-bold text-xs sm:text-sm rounded-[2px] text-white cursor-pointer hover:shadow-md active:scale-95 whitespace-nowrap min-w-0 shadow-sm"
+                >
+                  <Zap size={16} className="shrink-0" />
+                  <span className="truncate">এখনি কিনুন</span>
+                </button>
+              </div>
             </div>
+          </div>
+          <div className="mt-4 flex flex-col gap-2 text-gray-700">
+            <div dangerouslySetInnerHTML={{ __html: description }} />
           </div>
         </div>
       </div>

@@ -42,8 +42,25 @@ export const CreateForm: React.FC = () => {
     defaultValues,
   });
 
+  const beforeImageUpload = (file: any) => {
+    const isLt5M = file.size <= 5 * 1024 * 1024;
+    if (!isLt5M) {
+      toast({
+        title: "সাইজ সীমা অতিক্রম করেছে",
+        description: "ছবির সাইজ সর্বোচ্চ ৫ মেগাবাইট (5 MB) হতে পারবে। অনুগ্রহ করে ছোট সাইজের ছবি আপলোড করুন।",
+        variant: "destructive",
+      });
+      return Upload.LIST_IGNORE;
+    }
+    return false;
+  };
+
   const handleImageFileChange = ({ fileList }: any) => {
-    const latestFileList = fileList.slice(-1); // only keep the last uploaded
+    const validFiles = fileList.filter((f: any) => {
+      const size = f.size || f.originFileObj?.size || 0;
+      return !size || size <= 5 * 1024 * 1024;
+    });
+    const latestFileList = validFiles.slice(-1); // only keep the last uploaded
     setFileList(latestFileList);
 
     const rawFiles = latestFileList
@@ -53,7 +70,11 @@ export const CreateForm: React.FC = () => {
   };
 
   const handleVectorFileChange = ({ fileList }: any) => {
-    const latestFileList = fileList.slice(-1); // only keep the last uploaded
+    const validFiles = fileList.filter((f: any) => {
+      const size = f.size || f.originFileObj?.size || 0;
+      return !size || size <= 5 * 1024 * 1024;
+    });
+    const latestFileList = validFiles.slice(-1); // only keep the last uploaded
     setVectorFileList(latestFileList);
 
     const rawFiles = latestFileList
@@ -122,7 +143,7 @@ export const CreateForm: React.FC = () => {
                   </FormLabel>
                   <Upload
                     listType="picture-card"
-                    beforeUpload={() => false}
+                    beforeUpload={beforeImageUpload}
                     fileList={fileList}
                     onChange={handleImageFileChange}
                     maxCount={1}
@@ -149,7 +170,7 @@ export const CreateForm: React.FC = () => {
                   </FormLabel>
                   <Upload
                     listType="picture-card"
-                    beforeUpload={() => false}
+                    beforeUpload={beforeImageUpload}
                     fileList={vectorFileList}
                     onChange={handleVectorFileChange}
                     maxCount={1}

@@ -1,4 +1,4 @@
-import { Lato, Rajdhani, Fjalla_One } from "next/font/google";
+import { Lato, Rajdhani, Fjalla_One, Inter } from "next/font/google";
 
 export const rajdhani = Rajdhani({
   subsets: ["latin"],
@@ -15,5 +15,11 @@ export const lato = Lato({
 export const fjallaOne = Fjalla_One({
   subsets: ["latin"],
   weight: ["400"],
+  display: "swap",
+});
+
+export const inter = Inter({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800"],
   display: "swap",
 });

@@ -62,10 +62,28 @@ export const BannerDetailsSheet: React.FC<Props> = ({ banner }) => {
     fileUrlGenerator(banner.image || "")
   );
 
-  const handleFileChange = ({ fileList }: any) => {
-    setFileList(fileList);
+  const beforeUpload = (file: any) => {
+    const isLt5M = file.size <= 5 * 1024 * 1024;
+    if (!isLt5M) {
+      toast({
+        title: "সাইজ সীমা অতিক্রম করেছে",
+        description: "ছবির সাইজ সর্বোচ্চ ৫ মেগাবাইট (5 MB) হতে পারবে। অনুগ্রহ করে ছোট সাইজের ছবি আপলোড করুন।",
+        variant: "destructive",
+      });
+      return Upload.LIST_IGNORE;
+    }
+    return false;
+  };
 
-    const rawFiles = fileList
+  const handleFileChange = ({ fileList }: any) => {
+    const validFiles = fileList.filter((file: any) => {
+      const size = file.size || file.originFileObj?.size || 0;
+      return size <= 5 * 1024 * 1024;
+    });
+
+    setFileList(validFiles);
+
+    const rawFiles = validFiles
       .map((file: any) => file.originFileObj)
       .filter(Boolean);
 
@@ -240,7 +258,7 @@ export const BannerDetailsSheet: React.FC<Props> = ({ banner }) => {
                   <div>
                     <Upload
                       listType="picture-card"
-                      beforeUpload={() => false}
+                      beforeUpload={beforeUpload}
                       fileList={fileList}
                       onChange={handleFileChange}
                     >

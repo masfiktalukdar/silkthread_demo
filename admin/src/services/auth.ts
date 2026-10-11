@@ -20,11 +20,15 @@ export async function SignInUser(data: TUser): Promise<any> {
 }
 
 export async function getAllUser(): Promise<AllUserResponse> {
-  const response = await fetch(`${BASE_URL}/auth/user`);
-  if (!response.ok) {
-    throw new Error(`Error: ${response.status} - ${response.statusText}`);
+  try {
+    const response = await fetch(`${BASE_URL}/auth/user`);
+    if (!response.ok) {
+      return { success: false, data: [] } as any;
+    }
+    return response.json();
+  } catch (error) {
+    return { success: false, data: [] } as any;
   }
-  return response.json();
 }
 
 export async function forgotPassword(data: { email: string }) {

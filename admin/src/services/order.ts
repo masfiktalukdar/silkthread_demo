@@ -17,11 +17,13 @@ export async function getAllOrder(): Promise<AllOrderResponse> {
 
 export async function getOrderWithPagination(
   page?: string,
-  limit?: string
+  limit?: string,
+  search?: string
 ): Promise<AllOrderWithPaginationResponse> {
   const queryParams = new URLSearchParams();
   if (page) queryParams.set("page", page);
   if (limit) queryParams.set("limit", limit);
+  if (search) queryParams.set("searchTerm", search);
 
   const response = await fetch(
     `${BASE_URL}/order/pagination?${queryParams.toString()}`,

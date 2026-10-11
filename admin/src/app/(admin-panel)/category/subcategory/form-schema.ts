@@ -7,16 +7,16 @@ export const subCategoryFormSchema = z.object({
 
   image: z
     .array(
-      z.instanceof(File).refine((file) => file.size < 8 * 1024 * 1024, {
-        message: "File size must be less than 8 MB",
+      z.instanceof(File).refine((file) => file.size <= 5 * 1024 * 1024, {
+        message: "ছবির সাইজ সর্বোচ্চ ৫ মেগাবাইট (5 MB) হতে পারবে",
       })
     )
     .optional()
     .default([]),
   bannerImage: z
     .array(
-      z.instanceof(File).refine((file) => file.size < 8 * 1024 * 1024, {
-        message: "File size must be less than 8 MB",
+      z.instanceof(File).refine((file) => file.size <= 5 * 1024 * 1024, {
+        message: "ছবির সাইজ সর্বোচ্চ ৫ মেগাবাইট (5 MB) হতে পারবে",
       })
     )
     .optional()
@@ -28,6 +28,6 @@ export const dropZoneConfig = {
     "image/*": [".jpg", ".jpeg", ".png", "webp"],
   },
   maxFiles: 1,
-  maxSize: 1024 * 1024 * 8,
+  maxSize: 1024 * 1024 * 5,
   multiple: false,
 };

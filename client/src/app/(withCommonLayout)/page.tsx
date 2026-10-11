@@ -59,8 +59,6 @@ const page = async () => {
           <HomeProductSection products={middleRes?.data} />
         )}
 
-        <Campaign campaign={campaign[0]} />
-
         <LowerMiddleChildCategory
           childCategoriesList={lowerMiddleChildCategoriesList?.data}
         />
@@ -76,6 +74,8 @@ const page = async () => {
         {buttomRes?.status === "success" && (
           <HomeProductSection products={buttomRes?.data} />
         )}
+
+        <Campaign campaign={campaign[0]} />
       </div>
     </>
   );

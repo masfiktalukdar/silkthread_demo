@@ -114,6 +114,7 @@ class OrderController {
       limit: req.query.limit,
       order: req.query.order,
       warehouseRef: req.query.warehouseRef,
+      searchTerm: req.query.searchTerm || req.query.search || "",
     };
     const order = await OrderService.getOrderWithPagination(payload);
     const resDoc = responseHandler(200, "Orders get successfully", order);

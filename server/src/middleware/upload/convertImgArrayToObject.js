@@ -2,17 +2,18 @@ const config = require('../../config/config.js');
 
 exports.convertImgArrayToObject = (files) => {
   return files.reduce((total, file) => {
+    const fileUrl = file.url || `${config.uploadPath}${file.originalname}`;
     if (total[file.fieldname]) {
       if (Array.isArray(total[file.fieldname])) {
-        total[file.fieldname].push(`${config.uploadPath}${file.originalname}`);
+        total[file.fieldname].push(fileUrl);
       } else {
         total[file.fieldname] = [
           total[file.fieldname],
-          `${config.uploadPath}${file.originalname}`,
+          fileUrl,
         ];
       }
     } else {
-      total[file.fieldname] = `${config.uploadPath}${file.originalname}`;
+      total[file.fieldname] = fileUrl;
     }
     return total;
   }, {});

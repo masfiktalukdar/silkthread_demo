@@ -20,21 +20,24 @@ console.log(req.body);
   });
 
   authUserSignIn = withTransaction(async (req, res, next, session) => {
-    const { email, phone, password } = req.body;
-    console.log("email",email);
-if (!req.body.email) {
-  throw new Error("Email is required");
-}
+    const { email, phone, password, identifier } = req.body;
+    const userIdentifier = identifier || email || phone;
+    if (!userIdentifier) {
+      throw new Error("Email or Phone Number is required");
+    }
+    if (!password) {
+      throw new Error("Password is required");
+    }
 
     const payload = {
       email,
       phone,
+      identifier: userIdentifier,
       password,
     };
 
     const auth = await AuthService.authUserSignIn(payload, session);
-    console.log(auth);
-    const resDoc = responseHandler(201, "login successfully", auth);
+    const resDoc = responseHandler(200, "login successfully", auth);
     res.status(resDoc.statusCode).json(resDoc);
   });
   authForgetPassword = withTransaction(async (req, res, next, session) => {

@@ -15,20 +15,47 @@ export const getCartProducts = async (
   coupon?: string
 ) => {
   const res = await fetch(
-    `${apiBaseUrl}/cart?userId=${userId}&coupon=${coupon}`
+    `${apiBaseUrl}/cart?userId=${userId || ""}&coupon=${coupon || ""}`,
+    {
+      cache: "no-store",
+    }
   );
 
   return res.json();
+};
+
+export const updateCartQuantity = async (
+  cartId: string,
+  action: "increment" | "decrement"
+) => {
+  try {
+    const res = await fetch(`${apiBaseUrl}/cart/${cartId}?${action}=true`, {
+      method: "PUT",
+      cache: "no-store",
+    });
+
+    if (!res.ok) throw new Error("Failed to update cart quantity");
+    revalidatePath("/cart");
+    revalidatePath("/checkout");
+    revalidatePath("/", "layout");
+    return await res.json();
+  } catch (error) {
+    console.error("Update quantity failed:", error);
+    return null;
+  }
 };
 
 export const deleteCartProduct = async (cartId: string) => {
   try {
     const res = await fetch(`${apiBaseUrl}/cart/${cartId}`, {
       method: "DELETE",
+      cache: "no-store",
     });
 
     if (!res.ok) throw new Error("Failed to delete item from cart");
     revalidatePath("/cart");
+    revalidatePath("/checkout");
+    revalidatePath("/", "layout");
     return await res.json();
   } catch (error) {
     console.error("Delete failed:", error);
@@ -47,6 +74,8 @@ export const addToCart = async (product: {
     method: "POST",
     body: product,
   });
-  revalidatePath("/");
+  revalidatePath("/cart");
+  revalidatePath("/checkout");
+  revalidatePath("/", "layout");
   return res;
 };

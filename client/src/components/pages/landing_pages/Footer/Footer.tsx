@@ -1,23 +1,20 @@
-"use Client";
+"use client";
 import React from "react";
 import {
   FaFacebookF,
+  FaInstagram,
   FaRegCreditCard,
   FaTruck,
   FaYoutube,
 } from "react-icons/fa";
-import { FaRegMessage, FaRightLeft } from "react-icons/fa6";
+import { FaRegMessage, FaRightLeft, FaTiktok } from "react-icons/fa6";
 import Link from "next/link";
-import DownFooter from "../../DownFooter/DownFooter";
-import Instagram from "../../../../assets/images/2227.jpg"
-import Image from "next/image";
 
 interface FooterProps {
   userCartProducts: {
     cartDetails: any[];
   };
 }
-
 
 const Footer: React.FC<FooterProps> = ({ userCartProducts }) => {
   const quickLink = [
@@ -52,173 +49,169 @@ const Footer: React.FC<FooterProps> = ({ userCartProducts }) => {
 
   return (
     <div className="relative">
-      <div className="Container bg-[#F3F3F3]">
-        <div className="max-w-6xl grid grid-cols-2 lg:grid-cols-4 lg:justify-center mx-auto py-5 lg:py-10 px-1 gap-y-4 gap-x-2">
-          <div className="flex items-center space-x-2 lg:space-x-4">
-            <div className="lg:text-xl text-white bg-[#FF6C0C] p-3 rounded-full">
-              <FaTruck />
-            </div>
-            <div className="flex flex-col space-y-1">
-              <div className="text-md lg:text-xl">Free Shipping</div>
-              <div className="text-sm text-gray-600">
-                Free Shipping for orders
+      <div className="w-full bg-[#F3F3F3]">
+        <div className="Container">
+          <div className="grid grid-cols-2 lg:grid-cols-4 lg:justify-center mx-auto py-5 lg:py-10 gap-y-4 gap-x-2">
+            <div className="flex items-center space-x-2 lg:space-x-4">
+              <div className="lg:text-xl text-white bg-[#FF6C0C] p-3 rounded-full">
+                <FaTruck />
+              </div>
+              <div className="flex flex-col space-y-1">
+                <div className="text-md lg:text-xl font-semibold">Free Shipping</div>
+                <div className="text-sm text-gray-600">
+                  Free Shipping for orders
+                </div>
               </div>
             </div>
-          </div>
-          <div className="flex items-center space-x-2 lg:space-x-4">
-            <div className="lg:text-xl text-white bg-[#FF6C0C] p-3 rounded-full">
-              <FaRightLeft />
-            </div>
-            <div className="flex flex-col space-y-1">
-              <div className="text-md lg:text-xl">Return & Exchanges</div>
-              <div className="text-sm text-gray-600">
-                Free Shipping for orders
+            <div className="flex items-center space-x-2 lg:space-x-4">
+              <div className="lg:text-xl text-white bg-[#FF6C0C] p-3 rounded-full">
+                <FaRightLeft />
+              </div>
+              <div className="flex flex-col space-y-1">
+                <div className="text-md lg:text-xl font-semibold">Return & Exchanges</div>
+                <div className="text-sm text-gray-600">
+                  Free Shipping for orders
+                </div>
               </div>
             </div>
-          </div>
-          <div className="flex items-center space-x-2 lg:space-x-4">
-            <div className="lg:text-xl text-white bg-[#FF6C0C] p-3 rounded-full">
-              <FaRegMessage />
-            </div>
-            <div className="flex flex-col space-y-1">
-              <div className="text-md lg:text-xl">Online Support</div>
-              <div className="text-sm text-gray-600">
-                24 hours a day, 7 days a week
+            <div className="flex items-center space-x-2 lg:space-x-4">
+              <div className="lg:text-xl text-white bg-[#FF6C0C] p-3 rounded-full">
+                <FaRegMessage />
+              </div>
+              <div className="flex flex-col space-y-1">
+                <div className="text-md lg:text-xl font-semibold">Online Support</div>
+                <div className="text-sm text-gray-600">
+                  24 hours a day, 7 days a week
+                </div>
               </div>
             </div>
-          </div>
-          <div className="flex items-center space-x-2 lg:space-x-4">
-            <div className="lg:text-xl text-white bg-[#FF6C0C] p-3 rounded-full">
-              <FaRegCreditCard />
-            </div>
-            <div className="flex flex-col space-y-1">
-              <div className="text-md lg:text-xl">Flexible payment</div>
-              <div className="text-sm text-gray-600">
-                Pay with Multiple Credit Cards
+            <div className="flex items-center space-x-2 lg:space-x-4">
+              <div className="lg:text-xl text-white bg-[#FF6C0C] p-3 rounded-full">
+                <FaRegCreditCard />
+              </div>
+              <div className="flex flex-col space-y-1">
+                <div className="text-md lg:text-xl font-semibold">Flexible payment</div>
+                <div className="text-sm text-gray-600">
+                  Pay with Multiple Credit Cards
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="Container bg-[#D9D9D9] py-10 lg:py-16">
-        <div className=" flex flex-col lg:flex-row justify-between space-y-5">
-          <div>
-            <div className="text-black font-semibold mb-5 text-xl">
-              Contact Info
+      <div className="w-full bg-[#D9D9D9]">
+        <div className="Container py-8 sm:py-10 lg:py-16">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 sm:gap-8">
+            {/* Contact Info */}
+            <div className="col-span-1">
+              <div className="text-black font-bold mb-3 text-lg lg:text-xl">
+                Contact Info
+              </div>
+              <div className="text-black text-sm lg:text-base flex flex-col space-y-1.5">
+                <div>WhatsApp: 01623-726069</div>
+                <div>Phone: 01623-726069</div>
+                <div>email: silkthread.bd@gmail.com</div>
+                <div>Address: Mirpur 2, Opposite of Stadium Gate no. 1, Dhaka</div>
+              </div>
             </div>
-            <div className="text-black text-md lg:text-lg flex flex-col space-y-1">
-              <div>WhatsApp: 01623-726069</div>
-              <div>Phone: 01623-726069</div>
-              <div>email: silkthread.bd@gmail.com</div>
-              <div>Address: Miprur 2, Oposite of Stadium Gate no. 1. Dhaka</div>
-            </div>
-          </div>
-          <div>
-            <div className="text-black font-semibold mb-5 text-xl">
-              Quick Links
-            </div>
-            <ul className="text-black text-xl">
-              {quickLink.map((item, index) => (
-                <div key={index}>
-                  <Link href={item.link}>
-                    <li className="my-1 relative group cursor-pointer">
-                      <span className="inline-block transition-all duration-300 group-hover:translate-x-2 group-hover:text-black text-md lg:text-lg">
-                        {item.name}
-                      </span>
-                    </li>
-                  </Link>
+
+            {/* Quick Links & Information Side by Side on Mobile */}
+            <div className="col-span-1 lg:col-span-2 grid grid-cols-2 gap-4 sm:gap-8">
+              <div>
+                <div className="text-black font-bold mb-3 text-lg lg:text-xl">
+                  Quick Links
                 </div>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <div className="text-black font-semibold mb-5 text-xl">
-              Infromation
-            </div>
-            <ul className="text-black text-xl">
-              {information.map((item, index) => (
-                <div key={index}>
-                  <Link href={item.link}>
-                    <li className="my-1 relative group cursor-pointer">
-                      <span className="inline-block transition-all duration-300 group-hover:translate-x-2 group-hover:text-black text-md lg:text-lg">
-                        {item.name}
-                      </span>
+                <ul className="text-black text-sm lg:text-base space-y-1.5">
+                  {quickLink.map((item, index) => (
+                    <li key={index} className="relative group cursor-pointer">
+                      <Link href={item.link}>
+                        <span className="inline-block transition-all duration-300 group-hover:translate-x-1.5 hover:text-[#FF6C0C]">
+                          {item.name}
+                        </span>
+                      </Link>
                     </li>
-                  </Link>
+                  ))}
+                </ul>
+              </div>
+
+              <div>
+                <div className="text-black font-bold mb-3 text-lg lg:text-xl">
+                  Information
                 </div>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <div className="text-black font-semibold mb-5 text-xl">
-              Social Media
+                <ul className="text-black text-sm lg:text-base space-y-1.5">
+                  {information.map((item, index) => (
+                    <li key={index} className="relative group cursor-pointer">
+                      <Link href={item.link}>
+                        <span className="inline-block transition-all duration-300 group-hover:translate-x-1.5 hover:text-[#FF6C0C]">
+                          {item.name}
+                        </span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
-            <div className="">
-              <div className="flex lg:justify-center lg:items-center gap-2 mt-4">
+
+            {/* Social Media - Evenly Sized Squares */}
+            <div className="col-span-1">
+              <div className="text-black font-bold mb-3 text-lg lg:text-xl">
+                Social Media
+              </div>
+              <div className="flex items-center gap-2.5 mt-2">
                 <a
                   href="https://www.facebook.com/share/1BfwmV2KcS/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-2 py-2 bg-[#2563EB] rounded text-white border border-[#fff]/0 hover:scale-95 hover:border-[#fff] hover:border duration-300"
+                  className="w-10 h-10 rounded-[2px] bg-[#1877F2] text-white flex items-center justify-center hover:opacity-90 active:scale-95 transition-all shadow-xs shrink-0"
                   aria-label="Facebook"
                 >
-                  <FaFacebookF />
+                  <FaFacebookF className="text-lg" />
                 </a>
 
                 <a
                   href="https://youtube.com/@silkthread-d3v?si=oA7cwongy2QewMZ_"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-2 py-2 bg-[#F60000] rounded text-[#fff] border border-[#fff]/0 hover:scale-95 hover:border-[#fff] hover:border duration-300"
-                  aria-label="youtube"
+                  className="w-10 h-10 rounded-[2px] bg-[#FF0000] text-white flex items-center justify-center hover:opacity-90 active:scale-95 transition-all shadow-xs shrink-0"
+                  aria-label="YouTube"
                 >
-                  <FaYoutube />
+                  <FaYoutube className="text-lg" />
                 </a>
 
                 <a
                   href="https://www.instagram.com/silk3866?igsh=MXJjcWk3ZnBhOTJo"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-2 py-2   hover:scale-95 duration-300"
-                  aria-label="Facebook"
+                  className="w-10 h-10 rounded-[2px] bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] text-white flex items-center justify-center hover:opacity-90 active:scale-95 transition-all shadow-xs shrink-0"
+                  aria-label="Instagram"
                 >
-                  <Image src={Instagram}
-                    width={40}
-                    height={40} alt={""} />
+                  <FaInstagram className="text-xl" />
                 </a>
+
                 <a
                   href="http://tiktok.com/@silk.thread5"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-2 py-2 bg-black rounded text-white border border-white/0 hover:scale-95 hover:border-white hover:border duration-300"
-                  aria-label="tiktok"
+                  className="w-10 h-10 rounded-[2px] bg-black text-white flex items-center justify-center hover:opacity-90 active:scale-95 transition-all shadow-xs shrink-0"
+                  aria-label="TikTok"
                 >
-
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                  >
-                    <path d="M12.5 2c.7 0 1.4 0 2 .2 0 2.3 1.8 4.1 4.1 4.2v3.1c-1.5 0-3-.5-4.2-1.4v6.8c0 3.3-2.7 6-6 6S2.5 18.2 2.5 15s2.7-6 6-6c.5 0 1 .1 1.5.2V12c-.5-.2-1-.3-1.5-.3-1.7 0-3 1.4-3 3s1.3 3 3 3 3-1.4 3-3V2z" />
-                  </svg>
+                  <FaTiktok className="text-lg" />
                 </a>
               </div>
             </div>
           </div>
         </div>
       </div>
-      <div className="bg-[#37383F] text-white text-center py-4 md:pb-4 pb-[80px]">
-        Copyright © 2025 Silk Thread. All Right Reserved. Developed by{" "}
-        <a target="_blank" href="https://okobiz.com/">
+
+      <div className="bg-[#37383F] text-white text-center py-3 px-4 text-xs sm:text-sm">
+        Copyright © 2026 Silk Thread. All Right Reserved. Developed by{" "}
+        <a target="_blank" href="https://okobiz.com/" className="text-orange-400 hover:underline">
           Okobiz
         </a>
       </div>
-      <DownFooter userCartProducts={userCartProducts} />
     </div>
   );
-}
+};
 
 export default Footer;

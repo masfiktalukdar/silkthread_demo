@@ -3,7 +3,7 @@
 import { TCategory } from "@/types";
 import Image from "next/image";
 import React, { useRef, useEffect, useState } from "react";
-import { apiBaseUrl } from "@/config/config";
+import { apiBaseUrl, getImageUrl } from "@/config/config";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -15,28 +15,33 @@ interface CategoryProps {
 const CategoryCardSlider: React.FC<CategoryProps> = ({ categoriesList }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [canScroll, setCanScroll] = useState(false);
 
   const sortedCategories = [...(categoriesList || [])].sort(
     (a, b) => Number(b.status) - Number(a.status)
   );
 
-  // Generate upcoming cards if less than 6 categories
-  const minCategories = 7;
+  // Display actual categories only
   const displayCategories = [...sortedCategories];
-  
-  if (sortedCategories.length < minCategories) {
-    const upcomingCount = minCategories - sortedCategories.length;
-    for (let i = 0; i < upcomingCount; i++) {
-      displayCategories.push({
-        _id: `upcoming-${i}`,
-        name: "Upcoming",
-        slug: "",
-        image: "",
-        status: 0,
-        isUpcoming: true
-      } as unknown as TCategory & { isUpcoming?: boolean });
-    }
-  }
+
+  // Check if content overflows and can scroll
+  useEffect(() => {
+    const checkCanScroll = () => {
+      if (scrollContainerRef.current) {
+        const { scrollWidth, clientWidth } = scrollContainerRef.current;
+        setCanScroll(scrollWidth > clientWidth + 10);
+      }
+    };
+
+    checkCanScroll();
+    // Re-check after images/fonts settle
+    const timer = setTimeout(checkCanScroll, 500);
+    window.addEventListener("resize", checkCanScroll);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("resize", checkCanScroll);
+    };
+  }, [displayCategories]);
 
   const scroll = (direction: "left" | "right") => {
     if (scrollContainerRef.current) {
@@ -52,21 +57,22 @@ const CategoryCardSlider: React.FC<CategoryProps> = ({ categoriesList }) => {
   // Track scroll position for indicators
   useEffect(() => {
     const container = scrollContainerRef.current;
-    if (!container) return;
+    if (!container || !canScroll) return;
 
     const handleScroll = () => {
       const scrollLeft = container.scrollLeft;
-      const cardWidth = container.scrollWidth / displayCategories.length;
+      const cardWidth = container.scrollWidth / (displayCategories.length || 1);
       const newIndex = Math.round(scrollLeft / cardWidth);
       setActiveIndex(newIndex);
     };
 
     container.addEventListener("scroll", handleScroll);
     return () => container.removeEventListener("scroll", handleScroll);
-  }, [displayCategories.length]);
+  }, [displayCategories.length, canScroll]);
 
-  // Auto sliding with reverse
+  // Auto sliding with reverse - only when content actually overflows
   useEffect(() => {
+    if (!canScroll) return;
     let direction: "left" | "right" = "right";
     
     const interval = setInterval(() => {
@@ -84,9 +90,10 @@ const CategoryCardSlider: React.FC<CategoryProps> = ({ categoriesList }) => {
       }
     }, 3000);
     return () => clearInterval(interval);
-  }, []);
+  }, [canScroll]);
+
   return (
-    <div className="w-full lg:px-2">
+    <div className="w-full">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800">
@@ -96,28 +103,35 @@ const CategoryCardSlider: React.FC<CategoryProps> = ({ categoriesList }) => {
             Explore our wide range of products
           </p>
         </div>
-        <div className="hidden md:flex gap-2">
-          <button
-            onClick={() => scroll("left")}
-            className="p-2 rounded-full bg-white border-2 border-gray-200 hover:border-[#FF6C0C] hover:bg-[#FF6C0C] hover:text-white transition-all duration-300 shadow-md"
-            aria-label="Scroll left"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-          <button
-            onClick={() => scroll("right")}
-            className="p-2 rounded-full bg-white border-2 border-gray-200 hover:border-[#FF6C0C] hover:bg-[#FF6C0C] hover:text-white transition-all duration-300 shadow-md"
-            aria-label="Scroll right"
-          >
-            <ChevronRight className="w-5 h-5" />
-          </button>
-        </div>
+        {/* Navigation buttons - shown ONLY if content overflows */}
+        {canScroll && (
+          <div className="hidden md:flex gap-2">
+            <button
+              type="button"
+              onClick={() => scroll("left")}
+              className="p-2 rounded-full bg-white border-2 border-gray-200 hover:border-[#FF6C0C] hover:bg-[#FF6C0C] hover:text-white transition-all duration-300 shadow-md cursor-pointer"
+              aria-label="Scroll left"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => scroll("right")}
+              className="p-2 rounded-full bg-white border-2 border-gray-200 hover:border-[#FF6C0C] hover:bg-[#FF6C0C] hover:text-white transition-all duration-300 shadow-md cursor-pointer"
+              aria-label="Scroll right"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="relative">
         <div
           ref={scrollContainerRef}
-          className="flex gap-2 sm:gap-3 lg:gap-4 overflow-x-auto scrollbar-hide scroll-smooth pb-4 snap-x snap-mandatory"
+          className={`flex gap-2 sm:gap-3 lg:gap-4 overflow-x-auto scrollbar-hide scroll-smooth pb-4 snap-x snap-mandatory ${
+            displayCategories.length <= 5 ? "md:justify-center justify-start" : "justify-start"
+          }`}
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
           {displayCategories?.map((category, index) => {
@@ -139,7 +153,7 @@ const CategoryCardSlider: React.FC<CategoryProps> = ({ categoriesList }) => {
                     isUpcoming 
                       ? "border-dashed border-gray-300 bg-gray-50" 
                       : "border-gray-200 hover:border-[#FF6C0C] hover:shadow-2xl"
-                  } rounded-xl sm:rounded-2xl overflow-hidden transition-all duration-300 ${
+                  } rounded-[2px] overflow-hidden transition-all duration-300 ${
                     isUpcoming ? "cursor-default" : "cursor-pointer"
                   } flex flex-col`}
                 >
@@ -157,7 +171,7 @@ const CategoryCardSlider: React.FC<CategoryProps> = ({ categoriesList }) => {
                   ) : (
                     <div className="relative w-full flex-1">
                       <Image
-                        src={apiBaseUrl + category.image || ""}
+                        src={getImageUrl(category.image)}
                         alt={category.name}
                         fill
                         sizes="(max-width: 640px) 128px, (max-width: 768px) 160px, (max-width: 1024px) 192px, 240px"
@@ -191,24 +205,24 @@ const CategoryCardSlider: React.FC<CategoryProps> = ({ categoriesList }) => {
           })}
         </div>
 
-        {/* Gradient overlays - hidden on mobile for better visibility */}
-        <div className="absolute top-0 left-0 h-full w-12 sm:w-16 lg:w-20 bg-linear-to-r from-white to-transparent pointer-events-none hidden sm:block" />
-        <div className="absolute top-0 right-0 h-full w-12 sm:w-16 lg:w-20 bg-linear-to-l from-white to-transparent pointer-events-none hidden sm:block" />
+        {/* Gradient overlays removed to match off-white background */}
       </div>
 
-      {/* Mobile scroll indicators */}
-      <div className="flex md:hidden justify-center gap-1.5 mt-3">
-        {displayCategories?.slice(0, Math.min(5, displayCategories.length)).map((_, index) => (
-          <div
-            key={index}
-            className={`w-2 h-2 rounded-full transition-all duration-300 ${
-              index === activeIndex % 5
-                ? "bg-[#FF6C0C] w-6"
-                : "bg-gray-300"
-            }`}
-          />
-        ))}
-      </div>
+      {/* Mobile scroll indicators - rendered ONLY when content can scroll */}
+      {canScroll && (
+        <div className="flex md:hidden justify-center gap-1.5 mt-3">
+          {displayCategories?.slice(0, Math.min(5, displayCategories.length)).map((_, index) => (
+            <div
+              key={index}
+              className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                index === activeIndex % 5
+                  ? "bg-[#FF6C0C] w-6"
+                  : "bg-gray-300"
+              }`}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 };

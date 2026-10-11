@@ -7,9 +7,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast, useToast } from "@/components/ui/use-toast";
-import { createSteadfastOrder } from "@/services/courier";
+import {
+  createSteadfastOrder,
+  sendOrderToPathao,
+  sendOrderToSteadfast,
+} from "@/services/courier";
 import { SteadfastOrderPayload, TOrder } from "@/types/shared";
-import { makeBDPrice, makePrice } from "@/utils/helpers";
+import { fileUrlGenerator, makeBDPrice, makePrice } from "@/utils/helpers";
+import Image from "next/image";
 import { ColumnDef } from "@tanstack/react-table";
 import React, { useRef } from "react";
 import { deleteOrderAction, UpdateOrderStatus } from "./actions";
@@ -43,28 +48,45 @@ export const columns: ColumnDef<TOrder>[] = [
     cell: ({ row }) => {
       const { products } = row.original;
       return (
-        <div className="w-40 flex flex-col gap-3">
-          {products?.map((item, index) => (
-            <div key={index} className="p-3 border rounded-md">
-              <p>{item?.productRef?.name} </p>
-              <p>
-                <span className="font-semibold">{item?.productRef?.price}</span>{" "}
-                x <span className="font-bold">{item?.quantity}</span>
-              </p>
-              <p>
-                Color:{" "}
-                {item?.inventoryRef?.name
-                  ? upperCase(item?.inventoryRef?.name)
-                  : "N/A"}
-              </p>
-              <p>
-                Size:{" "}
-                {item?.inventoryRef?.level
-                  ? upperCase(item?.inventoryRef?.level)
-                  : "N/A"}
-              </p>
-            </div>
-          ))}
+        <div className="min-w-[220px] max-w-[280px] flex flex-col gap-2.5">
+          {products?.map((item, index) => {
+            const firstImage =
+              Array.isArray(item?.productRef?.images) && item.productRef.images.length > 0
+                ? item.productRef.images[0]
+                : null;
+            const imageSrc = fileUrlGenerator(item?.productRef?.thumbnailImage || firstImage);
+
+            return (
+              <div
+                key={index}
+                className="p-2.5 border border-gray-200 rounded-[2px] bg-white flex items-center gap-3 shadow-2xs"
+              >
+                <div className="relative w-14 h-14 shrink-0 rounded-[2px] overflow-hidden border border-gray-200 bg-gray-50">
+                  <Image
+                    src={imageSrc}
+                    alt={item?.productRef?.name || "Product image"}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <div className="flex-1 min-w-0 text-xs">
+                  <p className="font-semibold text-gray-900 leading-tight truncate">
+                    {item?.productRef?.name || "Product"}
+                  </p>
+                  <p className="text-gray-600 mt-1">
+                    <span className="font-bold text-[#FF6C0C]">৳{item?.productRef?.price || 0}</span>{" "}
+                    × <span className="font-bold text-gray-900">{item?.quantity || 1}</span>
+                  </p>
+                  <div className="flex items-center gap-2 text-[11px] text-gray-500 mt-0.5">
+                    {item?.inventoryRef?.name && item?.inventoryRef?.name !== "N/A" && (
+                      <span>Color: <strong className="text-gray-700">{upperCase(item?.inventoryRef?.name)}</strong></span>
+                    )}
+                    <span>Size: <strong className="text-gray-700">{item?.inventoryRef?.level ? upperCase(item?.inventoryRef?.level) : "N/A"}</strong></span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       );
     },
@@ -262,48 +284,104 @@ export const columns: ColumnDef<TOrder>[] = [
     },
   },
   {
-    header: "Send To Courier",
+    header: "Courier",
     cell: ({ row }) => {
-      const [loading, setLoading] = React.useState(false);
+      const order = row.original;
+      const [loadingCourier, setLoadingCourier] = React.useState<string | null>(null);
+      const [currentOrder, setCurrentOrder] = React.useState(order);
       const { toast } = useToast();
 
-      const courierData: SteadfastOrderPayload = {
-        invoice: row.original.orderId,
-        recipient_name: row.original.customerName || "",
-        recipient_phone: row.original.customerPhone || "",
-        recipient_address: row.original.customerAddress || "",
-        cod_amount: row.original.totalPrice || "",
-        note: row.original.note,
-      };
-
-
-      const handleClick = async () => {
-        setLoading(true);
+      const handleSendToCourier = async (courierName: "pathao" | "steadfast") => {
+        setLoadingCourier(courierName);
         try {
-          const response = await createSteadfastOrder(courierData);
+          let response;
+          if (courierName === "pathao") {
+            response = await sendOrderToPathao(order.orderId);
+          } else {
+            response = await sendOrderToSteadfast(order.orderId);
+          }
 
-          if (response) {
+          if (response && response.success) {
+            const cid = response.consignment_id || response.data?.consignment_id;
             toast({
-              title: "Success",
-              description: "Order submitted to courier",
+              title: "Courier Dispatched",
+              description: `Submitted to ${courierName === "pathao" ? "Pathao" : "Steadfast"} (CID: ${cid})`,
             });
+            setCurrentOrder((prev) => ({
+              ...prev,
+              courierName,
+              consignmentId: String(cid),
+              courierStatus: response.data?.order_status || response.data?.status || "Pending",
+            }));
+          } else {
+            throw new Error(response?.message || "Failed to submit to courier");
           }
         } catch (error: any) {
-          console.log(error.message);
           toast({
-            title: "Error!",
+            title: "Courier Dispatch Failed",
             variant: "destructive",
-            description: error.message,
+            description: error.message || "An error occurred while submitting to courier",
           });
         } finally {
-          setLoading(false);
+          setLoadingCourier(null);
         }
       };
 
+      if (currentOrder.consignmentId) {
+        const isPathao = currentOrder.courierName === "pathao";
+        const trackingLink = isPathao
+          ? `https://merchant.pathao.com/tracking?consignment_id=${currentOrder.consignmentId}`
+          : `https://steadfast.com.bd/t/${currentOrder.consignmentId}`;
+
+        return (
+          <div className="flex flex-col gap-1 text-xs min-w-[130px]">
+            <span
+              className={`inline-flex items-center gap-1 font-bold px-2 py-0.5 rounded-full w-fit ${
+                isPathao
+                  ? "bg-red-50 text-red-700 border border-red-200"
+                  : "bg-emerald-50 text-emerald-700 border border-emerald-200"
+              }`}
+            >
+              <span className={`w-1.5 h-1.5 rounded-full ${isPathao ? "bg-red-500" : "bg-emerald-600"}`} />
+              {isPathao ? "Pathao" : "Steadfast"}
+            </span>
+            <div className="text-[11px] text-gray-600 font-mono">
+              CID: <span className="font-bold select-all">{currentOrder.consignmentId}</span>
+            </div>
+            {currentOrder.courierStatus && (
+              <span className="text-[10px] text-gray-500 uppercase font-semibold">
+                {currentOrder.courierStatus.replace(/_/g, " ")}
+              </span>
+            )}
+            <a
+              href={trackingLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[11px] text-blue-600 hover:underline font-medium inline-flex items-center gap-1"
+            >
+              Track Live ↗
+            </a>
+          </div>
+        );
+      }
+
       return (
-        <div>
-          <Button loading={loading} onClick={handleClick}>
+        <div className="flex flex-col gap-1.5 min-w-[100px]">
+          <Button
+            size="sm"
+            className="h-7 text-xs bg-emerald-600 hover:bg-emerald-700 text-white"
+            loading={loadingCourier === "steadfast"}
+            onClick={() => handleSendToCourier("steadfast")}
+          >
             Steadfast
+          </Button>
+          <Button
+            size="sm"
+            className="h-7 text-xs bg-[#E23744] hover:bg-[#c92e3a] text-white"
+            loading={loadingCourier === "pathao"}
+            onClick={() => handleSendToCourier("pathao")}
+          >
+            Pathao
           </Button>
         </div>
       );

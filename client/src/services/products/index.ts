@@ -14,7 +14,9 @@ export const getAllProductsForShop = async (
   categorySlug?: string,
   subCategorySlug?: string,
   childCategorySlug?: string,
-  page?: number 
+  page?: number,
+  limit?: number,
+  searchTerm?: string
 ) => {
   const searchParams = new URLSearchParams();
 
@@ -43,9 +45,17 @@ export const getAllProductsForShop = async (
     searchParams.append("page", page.toString()); // ✅ Add page to URL
   }
 
+  if (limit) {
+    searchParams.append("limit", limit.toString());
+  }
+
+  if (searchTerm && searchTerm.trim()) {
+    searchParams.append("searchTerm", searchTerm.trim());
+  }
+
   const url = `${apiBaseUrl}/product/pagination?${searchParams.toString()}`;
 
-  const res = await fetch(url);
+  const res = await fetch(url, { cache: "no-store" });
   if (!res.ok) {
     throw new Error("Failed to fetch products");
   }
@@ -54,7 +64,7 @@ export const getAllProductsForShop = async (
 };
 
 export const getSingleProductBySlug = async (_id: string) => {
-  const res = await fetch(`${apiBaseUrl}/product/${_id}`);
+  const res = await fetch(`${apiBaseUrl}/product/${_id}`, { cache: "no-store" });
 
   if (!res.ok) {
     throw new Error("Failed to fetch product");
@@ -64,7 +74,7 @@ export const getSingleProductBySlug = async (_id: string) => {
 };
 
 export const getRelativeProducts = async (productId: { productId: string }) => {
-  const res = await fetch(`${apiBaseUrl}/product/related-product/${productId}`);
+  const res = await fetch(`${apiBaseUrl}/product/related-product/${productId}`, { cache: "no-store" });
 
   return res.json();
 };
@@ -76,7 +86,7 @@ export const getRelativeProducts = async (productId: { productId: string }) => {
 // };
 
 export const getSearchProducts = async (search: { search: string }) => {
-  const res = await fetch(`${apiBaseUrl}/product/search?search=${search?.search}`);
+  const res = await fetch(`${apiBaseUrl}/product/search?search=${search?.search}`, { cache: "no-store" });
 
   return res.json();
 };

@@ -1,7 +1,7 @@
 
 import type { Metadata } from "next";
 import "./globals.css";
-import { lato } from "./font";
+import { inter } from "./font";
 import NextTopLoader from "nextjs-toploader";
 import { LanguageProvider } from "@/context/LanguageContext";
 
@@ -17,7 +17,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${lato.className} antialiased `}>
+      <body className={`${inter.className} antialiased bg-[#FAF9F6] text-gray-900`}>
         <NextTopLoader showSpinner={false} color="#FF6C0C" />
         <LanguageProvider>
           {children}

@@ -13,6 +13,53 @@ const { idGenerate } = require("../../utils/IdGenerator.js");
 const { generateEAN13Barcode } = require("../../utils/barcodeGenerate.js");
 const subCategoryRepository = require("../subCategory/sub.category.repository.js");
 const categoryRepository = require("../category/category.repository.js");
+const fs = require("fs");
+const path = require("path");
+const config = require("../../config/config.js");
+
+const FALLBACK_PLACEHOLDER_URL =
+  "https://res.cloudinary.com/wpttnkjq/image/upload/v1786514995/placeholder_vnae7z.svg";
+
+const sanitizeProductImage = (imgPath) => {
+  if (!imgPath || typeof imgPath !== "string") return FALLBACK_PLACEHOLDER_URL;
+  if (imgPath.startsWith("http://") || imgPath.startsWith("https://")) {
+    return imgPath;
+  }
+  try {
+    const filename = path.basename(imgPath);
+    const localFile = path.join(config.uploadFolder, filename);
+    if (fs.existsSync(localFile)) {
+      return imgPath;
+    }
+  } catch (err) { }
+  return FALLBACK_PLACEHOLDER_URL;
+};
+
+const sanitizeProduct = (prod) => {
+  if (!prod) return prod;
+  const p = prod.toObject ? prod.toObject() : { ...prod };
+  p.thumbnailImage = sanitizeProductImage(p.thumbnailImage);
+
+  if (p.backViewImage) {
+    const resolvedBack = sanitizeProductImage(p.backViewImage);
+    p.backViewImage =
+      resolvedBack === FALLBACK_PLACEHOLDER_URL ? "" : resolvedBack;
+  }
+
+  if (Array.isArray(p.images)) {
+    p.images = p.images
+      .map(sanitizeProductImage)
+      .filter((img) => img !== FALLBACK_PLACEHOLDER_URL);
+  }
+
+  if (p.sizeChartImage) {
+    const resolvedSizeChart = sanitizeProductImage(p.sizeChartImage);
+    p.sizeChartImage =
+      resolvedSizeChart === FALLBACK_PLACEHOLDER_URL ? "" : resolvedSizeChart;
+  }
+
+  return p;
+};
 
 class ProductService extends BaseService {
   #repository;
@@ -74,7 +121,7 @@ class ProductService extends BaseService {
         const color = item.colorCode || "#000000";
         const name = item.color || "Unknown";
         const quantity = parseInt(item.quantity) || 0;
-        console.log("inventory Quantity ",quantity)
+        console.log("inventory Quantity ", quantity)
         totalInventoryCount += quantity;
         const title = "INV-";
         if (newInventoryId === "") {
@@ -236,9 +283,9 @@ class ProductService extends BaseService {
     }
 
     payload.productId = await idGenerate("PRO-", "productId", this.#repository);
-    
+
     const productData = await this.#repository.createProduct(payload, session);
-    
+
     if (productData) {
       for (const invenoryId of invenoryIds) {
         const data = await this.#inventoryRepository.updateById(
@@ -268,27 +315,59 @@ class ProductService extends BaseService {
   async getAllProductForHomePage(payload) {
     const { limit, viewType } = payload;
     if (!viewType) throw new NotFoundError("viewType is required");
-    // find the viewType in the SubCategory collection
-    const subCategory = await this.#subCategoryRepository.findOne({
-      viewType: viewType,
-    });
-    if (!subCategory) throw new NotFoundError("SubCategory not found");
-    payload.subCategoryRef = subCategory?._id;
-    const product = await this.#repository.getAllProductForHomePage(payload);
-    return { product, subCategory };
+    // Find all subcategories matching the viewType sorted by createdAt: 1 (FIFO)
+    const subCategories = await this.#subCategoryRepository.findByViewType(
+      viewType
+    );
+    if (!subCategories || subCategories.length === 0) {
+      return { product: [], subCategory: null, sections: [] };
+    }
+
+    const sections = [];
+    for (const subCategory of subCategories) {
+      const products = await this.#repository.getAllProductForHomePage({
+        ...payload,
+        subCategoryRef: subCategory._id,
+      });
+
+      const sanitizedProducts = Array.isArray(products)
+        ? products.map(sanitizeProduct)
+        : [];
+      const sanitizedCategory = sanitizeProduct(subCategory);
+
+      sections.push({
+        category: sanitizedCategory,
+        result: sanitizedProducts,
+      });
+    }
+
+    return {
+      product: sections[0]?.result || [],
+      subCategory: sections[0]?.category || null,
+      sections,
+    };
   }
   async getRelatedProduct(payload) {
     const product = await this.#repository.getRelatedProduct(payload);
+    if (Array.isArray(product)) {
+      return product.map(sanitizeProduct);
+    }
     return product;
   }
 
   async getSearchProduct(payload) {
     const product = await this.#repository.getSearchProduct(payload);
+    if (product && Array.isArray(product.result)) {
+      product.result = product.result.map(sanitizeProduct);
+    }
     return product;
   }
 
   async getProductWithPagination(payload) {
     const product = await this.#repository.getProductWithPagination(payload);
+    if (product && Array.isArray(product.result)) {
+      product.result = product.result.map(sanitizeProduct);
+    }
     return product;
   }
 
@@ -296,21 +375,42 @@ class ProductService extends BaseService {
     const product = await this.#repository.getProductWithPaginationForAdmin(
       payload
     );
+    if (product && Array.isArray(product.result)) {
+      product.result = product.result.map(sanitizeProduct);
+    }
     return product;
   }
 
   async getSingleProduct(slug) {
+    const rawSlug = String(slug || "").trim();
+    const decodedSlug = decodeURIComponent(rawSlug);
+    const hyphenatedSlug = decodedSlug.replace(/\s+/g, "-");
 
-    const productData = await this.#repository.findBySlug(slug, [
+    const populateFields = [
       "brandRef",
       "categoryRef",
       "subCategoryRef",
       "childCategoryRef",
       "subChildCategoryRef",
       "inventoryRef",
-    ]);
+    ];
+
+    let productData = await this.#repository.findBySlug(rawSlug, populateFields);
+    if (!productData && decodedSlug !== rawSlug) {
+      productData = await this.#repository.findBySlug(decodedSlug, populateFields);
+    }
+    if (!productData && hyphenatedSlug !== rawSlug) {
+      productData = await this.#repository.findBySlug(hyphenatedSlug, populateFields);
+    }
+    if (!productData) {
+      productData = await this.#repository.findOne(
+        { slug: { $regex: new RegExp(`^${decodedSlug.replace(/[-\s]/g, "[- ]?")}$`, "i") } },
+        populateFields
+      );
+    }
+
     if (!productData) throw new NotFoundError("Product Not Find");
-    return productData;
+    return sanitizeProduct(productData);
   }
 
   // async updateProduct(id, payloadFiles, payload, session) {
@@ -615,10 +715,10 @@ class ProductService extends BaseService {
 
   async togglePriority(id) {
 
-    
-  const updatedProduct = await this.#repository.togglePriority(id);
-  return updatedProduct;
-}
+
+    const updatedProduct = await this.#repository.togglePriority(id);
+    return updatedProduct;
+  }
 
 
   async updateProductStatus(id, status) {
@@ -627,13 +727,13 @@ class ProductService extends BaseService {
     const product = await this.#repository.updateProductStatus(id, {
       status: status,
     });
-   
+
     if (!product) throw new NotFoundError("Product not found");
     return product;
   }
 
   async deleteProduct(id, session) {
-   
+
     const product = await this.#repository.findById(id);
     if (!product) throw new NotFoundError("Product not found");
     const deletedProduct = await this.#repository.deleteById(id, session);

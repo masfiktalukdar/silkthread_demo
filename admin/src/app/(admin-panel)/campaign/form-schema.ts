@@ -10,6 +10,6 @@ export const dropZoneConfig = {
     "image/*": [".jpg", ".jpeg", ".png", "webp"],
   },
   maxFiles: 1,
-  maxSize: 1024 * 1024 * 8,
+  maxSize: 1024 * 1024 * 5,
   multiple: false,
 };

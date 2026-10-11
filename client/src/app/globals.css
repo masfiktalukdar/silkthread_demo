@@ -1,9 +1,39 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+@theme {
+  --radius-xs: 2px;
+  --radius-sm: 2px;
+  --radius-md: 2px;
+  --radius-lg: 2px;
+  --radius-xl: 2px;
+  --radius-2xl: 2px;
+  --radius-3xl: 2px;
+  --radius: 2px;
+}
+
+/* Enforce 2px border radius in every cart/card and throughout the entire app */
+.rounded-sm,
+.rounded-md,
+.rounded-lg,
+.rounded-xl,
+.rounded-2xl,
+.rounded-3xl,
+[class*="rounded-xl"],
+[class*="rounded-2xl"],
+[class*="rounded-3xl"],
+[class*="rounded-lg"] {
+  border-radius: 2px !important;
+}
+
+.rounded-full,
+[class*="rounded-full"] {
+  border-radius: 9999px !important;
+}
+
 @layer base {
   .Container {
-    @apply 2xl:px-56 xl:px-20 lg:px-10 md:px-10 px-4;
+    @apply w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8;
   }
 
   .text-primary {
@@ -23,7 +53,7 @@
   }
 
   .button-primary {
-    @apply bg-[#1D4092] text-white font-bold py-1.5 rounded-md cursor-pointer;
+    @apply bg-[#1D4092] text-white font-bold py-1.5 rounded-[2px] cursor-pointer;
   }
   .button-primary:hover {
     @apply bg-blue-800;

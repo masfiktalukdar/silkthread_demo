@@ -1,7 +1,7 @@
 import { TSubCategory } from "@/types";
 import Image from "next/image";
 import React from "react";
-import { apiBaseUrl } from "@/config/config";
+import { apiBaseUrl, getImageUrl } from "@/config/config";
 import Link from "next/link";
 interface SubCategory {
   subCategory: TSubCategory;
@@ -29,7 +29,7 @@ const SubCategoryCard: React.FC<SubCategory> = ({ subCategory }) => {
 
           {/* Card Image */}
           <Image
-            src={image ? apiBaseUrl + image : "/default-image.png"}
+            src={getImageUrl(image)}
             alt={name}
             fill
             className="rounded hover:scale-105 duration-300"

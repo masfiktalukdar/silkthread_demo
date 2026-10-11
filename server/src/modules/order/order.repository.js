@@ -207,8 +207,21 @@ class OrderRepository extends BaseRepository {
       const orders = await pagination(
         payload,
         async (limit, offset, sortOrder) => {
+          const query = { warehouseRef: payload.warehouseRef };
+          if (payload.searchTerm && String(payload.searchTerm).trim()) {
+            const term = String(payload.searchTerm).trim();
+            query.$or = [
+              { orderId: { $regex: term, $options: "i" } },
+              { "shippingAddress.fullName": { $regex: term, $options: "i" } },
+              { "shippingAddress.phone": { $regex: term, $options: "i" } },
+              { "shippingAddress.address": { $regex: term, $options: "i" } },
+              { paymentMethod: { $regex: term, $options: "i" } },
+              { status: { $regex: term, $options: "i" } },
+            ];
+          }
+
           const orders = await this.#model
-            .find({ warehouseRef: payload.warehouseRef })
+            .find(query)
             .sort({ createdAt: sortOrder })
             .skip(offset)
             .limit(limit)
@@ -221,9 +234,7 @@ class OrderRepository extends BaseRepository {
             })
             .populate("couponRef");
           // .populate('')
-          const totalOrder = await this.#model.countDocuments({
-            warehouseRef: payload.warehouseRef,
-          });
+          const totalOrder = await this.#model.countDocuments(query);
           return { doc: orders, totalDoc: totalOrder };
         }
       );

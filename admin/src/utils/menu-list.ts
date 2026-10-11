@@ -99,6 +99,13 @@ export function getMenuList(pathname: string): Group[] {
           icon: FlameKindling,
           submenus: [],
         },
+        {
+          href: "/offers",
+          label: "Special Offers",
+          active: pathname.includes("/offers"),
+          icon: BadgeDollarSign,
+          submenus: [],
+        },
       ],
     },
     {

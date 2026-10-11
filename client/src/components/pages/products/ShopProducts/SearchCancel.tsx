@@ -27,6 +27,16 @@ const SearchCancel = () => {
   //   router.replace(`?${newParams.toString()}`);
   // };
 
+  const searchTerm = searchParams.get("searchTerm") || searchParams.get("search") || "";
+
+  const handleClearSearch = () => {
+    const newParams = new URLSearchParams(searchParams.toString());
+    newParams.delete("searchTerm");
+    newParams.delete("search");
+    newParams.delete("page");
+    router.push(`?${newParams.toString()}`);
+  };
+
   const handleClear = (type: "category" | "subCategory" | "childCategory", value: string) => {
     const newParams = new URLSearchParams(searchParams.toString());
     const currentValues = new Set((searchParams.get(type)?.split(",") || []).filter(Boolean));
@@ -46,11 +56,19 @@ const SearchCancel = () => {
     router.push(`?${newParams.toString()}`);
   };
 
-  // Don't show the component if no categories or subcategories are present
-  if (categorySlugs.length === 0 && subCategorySlugs.length === 0 && childCategorySlugs.length === 0) return null;
+  // Don't show the component if no categories, subcategories or search are present
+  if (categorySlugs.length === 0 && subCategorySlugs.length === 0 && childCategorySlugs.length === 0 && !searchTerm) return null;
 
   return (
-    <div className="flex flex-wrap gap-2 mt-4 lg:mt-0">
+    <div className="flex flex-wrap gap-2 mt-4 lg:mt-0 items-center">
+      {/* Search tag */}
+      {searchTerm && (
+        <div className="bg-[#FF6C0C] inline-flex p-1 px-2.5 rounded-[2px] text-white text-xs sm:text-sm items-center justify-center gap-1.5 shadow-xs">
+          <span>Search: &ldquo;{searchTerm}&rdquo;</span>
+          <HiMiniXMark className="text-base cursor-pointer hover:text-orange-200 transition-colors" onClick={handleClearSearch} />
+        </div>
+      )}
+
       {/* Render selected categories in separate divs */}
       {allCategories.length > 0 && (
         // <div className="flex gap-x-2">

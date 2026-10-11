@@ -90,6 +90,10 @@ export type TOrder = {
   paymentMethod?: "CashOnDelivery" | "Online" | "MobileBanking"; 
   mobileBankingProvider?: string; 
   mobileNumber?: string; 
+  consignmentId?: string;
+  courierName?: "pathao" | "steadfast" | string;
+  courierStatus?: string;
+  courierTrackingData?: any;
   createdAt?: string;
   updatedAt?: string;
 };

@@ -40,35 +40,27 @@ export const productFormSchema = z.object({
     .default([]),
   thumbnailImage: z
     .array(
-      z.instanceof(File).refine((file) => file.size < 8 * 1024 * 1024, {
-        message: "File size must be less than 8 MB",
+      z.instanceof(File).refine((file) => file.size <= 5 * 1024 * 1024, {
+        message: "ছবির সাইজ সর্বোচ্চ ৫ মেগাবাইট (5 MB) হতে পারবে",
       })
     )
     .min(1, {
-      message: "Minimum 1 files are allowed",
+      message: "কমপক্ষে ১টি ছবি আবশ্যক",
     }),
-  // .optional()
-  // .default([]),
   backViewImage: z
     .array(
-      z.instanceof(File).refine((file) => file.size < 8 * 1024 * 1024, {
-        message: "File size must be less than 8 MB",
+      z.instanceof(File).refine((file) => file.size <= 5 * 1024 * 1024, {
+        message: "ছবির সাইজ সর্বোচ্চ ৫ মেগাবাইট (5 MB) হতে পারবে",
       })
     )
-    // .max(1, {
-    //   message: "Maximum 1 files are allowed",
-    // })
     .optional()
     .default([]),
   sizeChartImage: z
     .array(
-      z.instanceof(File).refine((file) => file.size < 8 * 1024 * 1024, {
-        message: "File size must be less than 8 MB",
+      z.instanceof(File).refine((file) => file.size <= 5 * 1024 * 1024, {
+        message: "ছবির সাইজ সর্বোচ্চ ৫ মেগাবাইট (5 MB) হতে পারবে",
       })
     )
-    // .max(1, {
-    //   message: "Maximum 1 files are allowed",
-    // })
     .optional()
     .default([]),
 });
@@ -78,6 +70,6 @@ export const dropZoneConfig = {
     "image/*": [".jpg", ".jpeg", ".png", "webp"],
   },
   maxFiles: 1,
-  maxSize: 1024 * 1024 * 8,
+  maxSize: 1024 * 1024 * 5,
   multiple: false,
 };

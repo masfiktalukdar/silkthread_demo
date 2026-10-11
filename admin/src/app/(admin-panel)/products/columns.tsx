@@ -8,7 +8,7 @@ import { fileUrlGenerator, makeBDPrice, truncateText } from "@/utils/helpers";
 import React, { useState } from "react";
 import { upperCase, upperFirst } from "lodash";
 import TruncatedHtml from "@/components/utils/truncated-html";
-import Barcode from "react-barcode";
+import { Barcode } from "@/components/utils/Barcode";
 import { BASE_URL } from "@/config/config";
 
 export const columns: ColumnDef<TProduct>[] = [
@@ -22,15 +22,13 @@ export const columns: ColumnDef<TProduct>[] = [
     cell: ({ row }) => {
       return (
         <div>
-          {row.original.thumbnailImage && (
-            <Image
-              src={fileUrlGenerator(row.original.thumbnailImage)}
-              alt={row.original.name || ""}
-              width={600}
-              height={200}
-              className="w-32 object-cover"
-            />
-          )}
+          <Image
+            src={fileUrlGenerator(row.original.thumbnailImage)}
+            alt={row.original.name || ""}
+            width={128}
+            height={128}
+            className="w-20 h-20 object-cover rounded-md border"
+          />
         </div>
       );
     },
@@ -41,15 +39,13 @@ export const columns: ColumnDef<TProduct>[] = [
     cell: ({ row }) => {
       return (
         <div>
-          {row.original.backViewImage && (
-            <Image
-              src={fileUrlGenerator(row.original.backViewImage)}
-              alt={row.original.name || ""}
-              width={600}
-              height={200}
-              className="w-32 object-cover"
-            />
-          )}
+          <Image
+            src={fileUrlGenerator(row.original.backViewImage)}
+            alt={row.original.name || ""}
+            width={128}
+            height={128}
+            className="w-20 h-20 object-cover rounded-md border"
+          />
         </div>
       );
     },
@@ -60,15 +56,13 @@ export const columns: ColumnDef<TProduct>[] = [
     cell: ({ row }) => {
       return (
         <div>
-          {row.original.sizeChartImage && (
-            <Image
-              src={fileUrlGenerator(row.original.sizeChartImage)}
-              alt={row.original.name || ""}
-              width={600}
-              height={200}
-              className="w-32 object-cover"
-            />
-          )}
+          <Image
+            src={fileUrlGenerator(row.original.sizeChartImage)}
+            alt={row.original.name || ""}
+            width={128}
+            height={128}
+            className="w-20 h-20 object-cover rounded-md border"
+          />
         </div>
       );
     },
@@ -77,18 +71,25 @@ export const columns: ColumnDef<TProduct>[] = [
     header: "Additional Images",
     accessorKey: "images",
     cell: ({ row }) => {
+      const images = Array.isArray(row.original.images) && row.original.images.length > 0 
+        ? row.original.images 
+        : [];
       return (
-        <div>
-          {row.original.images &&
-            row.original.images.map((img) => (
+        <div className="flex gap-1 flex-wrap">
+          {images.length > 0 ? (
+            images.map((img, idx) => (
               <Image
+                key={idx}
                 src={fileUrlGenerator(img)}
                 alt={row.original.name || ""}
-                width={600}
-                height={200}
-                className="w-32 object-cover"
+                width={80}
+                height={80}
+                className="w-12 h-12 object-cover rounded border"
               />
-            ))}
+            ))
+          ) : (
+            <span className="text-xs text-gray-400">None</span>
+          )}
         </div>
       );
     },

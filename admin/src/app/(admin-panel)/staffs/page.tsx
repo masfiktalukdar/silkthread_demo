@@ -3,9 +3,11 @@ import { getAllUser } from "@/services/auth";
 import React from "react";
 import { StaffTable } from "./table";
 
+export const dynamic = "force-dynamic";
+
 export default async function StaffsPage() {
-  const { data } = await getAllUser();
-  // console.log(data, "data from getall user respone........");
+  const res = await getAllUser().catch(() => ({ data: [] }));
+  const data = res?.data || [];
   return (
     <ContentLayout title="Staffs">
       <StaffTable data={data} />

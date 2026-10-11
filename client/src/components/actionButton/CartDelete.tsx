@@ -18,11 +18,13 @@ const CartDelete = ({ cardId }: { cardId: string }) => {
   };
 
   return (
-    <div className="flex flex-col gap-2 cursor-pointer">
-      <button onClick={handleDelete} className="text-white cursor-pointer ">
-        <RiDeleteBin6Line className="bg-[#C9302C]  h-7 w-7 p-1" />
-      </button>
-    </div>
+    <button
+      onClick={handleDelete}
+      title="Remove item"
+      className="w-8 h-8 flex items-center justify-center rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 transition-all duration-200 cursor-pointer border border-transparent hover:border-red-100"
+    >
+      <RiDeleteBin6Line className="w-4 h-4" />
+    </button>
   );
 };
 

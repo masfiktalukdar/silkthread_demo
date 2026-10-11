@@ -31,14 +31,25 @@ class AuthRepository extends BaseRepository {
     return await this.#model.findOne({ phone }).exec();
   }
 
-  async getAuthByEmailOrPhone(email, phone) {
+  async getAuthByEmailOrPhone(email, phone, identifier) {
     const query = { $or: [] };
-    if (email) {
-      query.$or.push({ email });
-    }
+    const candidates = [email, phone, identifier].filter(Boolean);
 
-    if (phone) {
-      query.$or.push({ phone });
+    for (const val of candidates) {
+      const trimmed = String(val).trim();
+      if (!trimmed) continue;
+
+      query.$or.push({ email: trimmed });
+      query.$or.push({ phone: trimmed });
+
+      const digitsOnly = trimmed.replace(/\D/g, "");
+      if (digitsOnly.length >= 10) {
+        const local11 = digitsOnly.length === 11 ? digitsOnly : digitsOnly.length === 10 ? `0${digitsOnly}` : digitsOnly.slice(-11);
+        query.$or.push({ phone: local11 });
+        query.$or.push({ phone: `+88${local11}` });
+        query.$or.push({ phone: `88${local11}` });
+        query.$or.push({ email: local11 });
+      }
     }
 
     if (query.$or.length === 0) {

@@ -59,9 +59,9 @@ const Campaign: React.FC<Props> = ({ campaign }) => {
   }, [campaign]);
 
   return (
-    <div className="Container pb-8 py-4">
-      <div className="grid md:grid-cols-2   rounded">
-        <div className="flex flex-col items-center justify-center bg-[#222222]/80 md:rounded-l rounded-t">
+    <div className="Container py-3 sm:py-4">
+      <div className="grid md:grid-cols-2 rounded-2xl overflow-hidden shadow-xs">
+        <div className="flex flex-col items-center justify-center bg-[#222222]/80">
           <div className="text-center lg:pb-8 pb-4 text-[#fff]">
             <p className="md:mt-0 mt-3">Special Offer</p>
             <h2 className="lg:text-2xl text-xl font-semibold mt-1">
@@ -109,7 +109,7 @@ const Campaign: React.FC<Props> = ({ campaign }) => {
             alt="Countdown Timer"
             width={800}
             height={800}
-            className="w-full h-full object-cover md:rounded-r rounded-b"
+            className="w-full h-full object-cover"
           />
         </div>
       </div>

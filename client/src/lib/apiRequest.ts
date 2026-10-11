@@ -25,6 +25,7 @@ export const apiRequest = async <T = unknown>({
       'Content-Type': 'application/json',
       ...headers,
     },
+    cache: "no-store",
     ...(typeof body !== 'undefined' ? { body: JSON.stringify(body) } : {}),
   }
 );

@@ -1,21 +1,31 @@
 "use client";
 
-import { apiBaseUrl } from "@/config/config";
+import { apiBaseUrl, getImageUrl } from "@/config/config";
 import { getSearchProducts } from "@/services/products";
 import { TProduct } from "@/types";
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { GoSearch } from "react-icons/go";
+import { useRouter } from "next/navigation";
 
 interface ResponsiveSearchFormProps {
   onClose: () => void;
 }
 
 const SearchForm: React.FC<ResponsiveSearchFormProps> = ({ onClose }) => {
+  const router = useRouter();
   const [query, setQuery] = useState("");
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false); // <-- loader state
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (query.trim()) {
+      onClose();
+      router.push(`/shop?searchTerm=${encodeURIComponent(query.trim())}`);
+    }
+  };
 
   useEffect(() => {
     const fetchSearchResults = async () => {
@@ -44,7 +54,7 @@ const SearchForm: React.FC<ResponsiveSearchFormProps> = ({ onClose }) => {
   return (
     <div className="flex flex-col items-center gap-6">
       <form
-        onSubmit={(e) => e.preventDefault()}
+        onSubmit={handleSearchSubmit}
         className="2xl:w-[60vh] xl:w-[50vh] lg:w-[38vh] w-[52vh] border relative border-[#FF6C0C]  flex items-center justify-between px-4 py-2 rounded"
       >
         <input
@@ -54,7 +64,7 @@ const SearchForm: React.FC<ResponsiveSearchFormProps> = ({ onClose }) => {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
-        <button type="submit">
+        <button type="submit" className="cursor-pointer">
           <GoSearch className="text-xl text-[#FF6C0C] font-bold" />
         </button>
       </form>
@@ -73,7 +83,7 @@ const SearchForm: React.FC<ResponsiveSearchFormProps> = ({ onClose }) => {
                   <div>
                     {product?.thumbnailImage && (
                       <Image
-                        src={apiBaseUrl + product?.thumbnailImage}
+                        src={getImageUrl(product?.thumbnailImage)}
                         alt="image"
                         width={30}
                         height={30}

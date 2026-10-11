@@ -11,24 +11,21 @@ class ShippingMethodRepository extends BaseRepository {
   }
 
   async createShippingMethod(payload, session) {
-    // const existingShippingMethod = await this.#model
-    //   .find({}, null, { session })
-    //   .sort({ createdAt: -1 });
-    // const deleteResult = await this.#model.deleteMany({}, { session });
-    // if (deleteResult.deletedCount > 0) {
-    //   for (const shippingMethod of existingShippingMethod) {
-    //     if (shippingMethod.image) {
-    //       try {
-    //         await removeUploadFile(shippingMethod.image);
-    //       } catch (fileError) {
-    //         console.error(`Failed to remove file: ${shippingMethod.image}`, fileError);
-    //       }
-    //     }
-    //   }
-    // }
+    const options = session ? { session } : {};
+    const newShippingMethod = await this.#model.create([payload], options);
+    return Array.isArray(newShippingMethod) ? newShippingMethod[0] : newShippingMethod;
+  }
 
-    const newShippingMethod = await this.#model.create([payload], { session });
-    return newShippingMethod;
+  async updateShippingMethodStatus(id, payload) {
+    const statusVal =
+      typeof payload === "object" && payload !== null && "status" in payload
+        ? payload.status
+        : payload;
+    return await this.#model.findByIdAndUpdate(
+      id,
+      { status: statusVal },
+      { new: true }
+    );
   }
 
   async updateShippingMethod(id, payload) {

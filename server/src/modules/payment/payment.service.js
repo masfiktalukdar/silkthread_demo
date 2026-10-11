@@ -7,16 +7,23 @@ const { OrderSchema } = require("../../models/order/orderSchema.js");
 const { default: mongoose } = require("mongoose");
 const productController = require("../product/product.controller.js");
 const orderRepository = require('../order/order.repository.js');
+const config = require("../../config/config.js");
 
-// Use SERVER_URL from .env for all payment endpoints
-const successUrl = `${process.env.SERVER_URL}/payment/success`;
-const failUrl = `${process.env.SERVER_URL}/payment/fail`;
-const cancelUrl = `${process.env.SERVER_URL}/payment/cancel`;
-const ipnUrl = `${process.env.SERVER_URL}/payment/ipn`;
-const SSLCOMMERZ_API_URL = process.env.SSLCOMMERZ_API_URL;
-const SSLCOMMERZ_STORE_ID = process.env.SSLCOMMERZ_STORE_ID;
-const SSLCOMMERZ_STORE_PASSWORD = process.env.SSLCOMMERZ_STORE_PASSWORD;
-const SSLCOMMERZ_VALIDATION_API = process.env.SSLCOMMERZ_VALIDATION_API;
+// Use serverURL from config (dynamic depending on ENVIRONMENT)
+const successUrl = `${config.serverURL}/payment/success`;
+const failUrl = `${config.serverURL}/payment/fail`;
+const cancelUrl = `${config.serverURL}/payment/cancel`;
+const ipnUrl = `${config.serverURL}/payment/ipn`;
+const SSLCOMMERZ_API_URL =
+  process.env.SSLCOMMERZ_API_URL ||
+  "https://sandbox.sslcommerz.com/gwprocess/v4/api.php";
+const SSLCOMMERZ_STORE_ID =
+  process.env.SSLCOMMERZ_STORE_ID || process.env.STORE_ID || "testbox";
+const SSLCOMMERZ_STORE_PASSWORD =
+  process.env.SSLCOMMERZ_STORE_PASSWORD || process.env.STORE_PASSWD || "qwerty";
+const SSLCOMMERZ_VALIDATION_API =
+  process.env.SSLCOMMERZ_VALIDATION_API ||
+  "https://sandbox.sslcommerz.com/validator/api/validationserverAPI.php";
 
 
 class PaymentService extends BaseService {

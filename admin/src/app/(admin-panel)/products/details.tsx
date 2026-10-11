@@ -51,8 +51,8 @@ import Image from "next/image";
 import { getAllCategory } from "@/services/category";
 import { getAllSubCategory } from "@/services/sub-category";
 import { getAllChildCategory } from "@/services/child-category";
-import ReactQuill from "react-quill";
-import "react-quill/dist/quill.snow.css";
+import ReactQuill from "react-quill-new";
+import "react-quill-new/dist/quill.snow.css";
 import { discountTypes, inventoryTypes } from "./form";
 import { Label } from "@/components/ui/label";
 import { upperCase, upperFirst } from "lodash";
@@ -224,10 +224,27 @@ export const ProductDetailsSheet: React.FC<Props> = ({ product }) => {
     }
   }, [product.thumbnailImage]);
 
-  const handleImageFileChange = ({ fileList }: any) => {
-    setImageFileList(fileList);
+  const beforeImageUpload = (file: any) => {
+    const isLt5M = file.size <= 5 * 1024 * 1024;
+    if (!isLt5M) {
+      toast({
+        title: "সাইজ সীমা অতিক্রম করেছে",
+        description: "ছবির সাইজ সর্বোচ্চ ৫ মেগাবাইট (5 MB) হতে পারবে। অনুগ্রহ করে ছোট সাইজের ছবি আপলোড করুন।",
+        variant: "destructive",
+      });
+      return Upload.LIST_IGNORE;
+    }
+    return false;
+  };
 
-    const rawFiles = fileList
+  const handleImageFileChange = ({ fileList }: any) => {
+    const validFiles = fileList.filter((file: any) => {
+      const size = file.size || file.originFileObj?.size || 0;
+      return !size || size <= 5 * 1024 * 1024;
+    });
+    setImageFileList(validFiles);
+
+    const rawFiles = validFiles
       .map((file: any) => {
         if (file.originFileObj) {
           return file.originFileObj;
@@ -241,9 +258,13 @@ export const ProductDetailsSheet: React.FC<Props> = ({ product }) => {
   };
 
   const handleThumbnailFileChange = ({ fileList }: any) => {
-    setThumbnailFileList(fileList);
+    const validFiles = fileList.filter((file: any) => {
+      const size = file.size || file.originFileObj?.size || 0;
+      return !size || size <= 5 * 1024 * 1024;
+    });
+    setThumbnailFileList(validFiles);
 
-    const rawFiles = fileList
+    const rawFiles = validFiles
       .map((file: any) => {
         if (file.originFileObj) {
           return file.originFileObj;
@@ -257,9 +278,13 @@ export const ProductDetailsSheet: React.FC<Props> = ({ product }) => {
   };
 
   const handleBackViewFileChange = ({ fileList }: any) => {
-    setBackViewFileList(fileList);
+    const validFiles = fileList.filter((file: any) => {
+      const size = file.size || file.originFileObj?.size || 0;
+      return !size || size <= 5 * 1024 * 1024;
+    });
+    setBackViewFileList(validFiles);
 
-    const rawFiles = fileList
+    const rawFiles = validFiles
       .map((file: any) => {
         if (file.originFileObj) {
           return file.originFileObj;
@@ -273,9 +298,13 @@ export const ProductDetailsSheet: React.FC<Props> = ({ product }) => {
   };
 
   const handleSizeChartFileChange = ({ fileList }: any) => {
-    setSizeChartFileList(fileList);
+    const validFiles = fileList.filter((file: any) => {
+      const size = file.size || file.originFileObj?.size || 0;
+      return !size || size <= 5 * 1024 * 1024;
+    });
+    setSizeChartFileList(validFiles);
 
-    const rawFiles = fileList
+    const rawFiles = validFiles
       .map((file: any) => {
         if (file.originFileObj) {
           return file.originFileObj;
@@ -424,18 +453,18 @@ export const ProductDetailsSheet: React.FC<Props> = ({ product }) => {
                   render={({ field }) => (
                     <div className="flex items-end gap-2 w-full">
                       <FormItem className="flex-1">
-                        <FormLabel>Free Shipping</FormLabel>
+                        <FormLabel>Free Shipping / ফ্রি ডেলিভারি</FormLabel>
                         <FormControl>
                           <Select
                             onValueChange={field.onChange}
                             value={String(field.value)}
                           >
                             <SelectTrigger>
-                              <SelectValue placeholder="Select free shipping?" />
+                              <SelectValue placeholder="Select shipping type" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="true">Yes</SelectItem>
-                              <SelectItem value="false">No</SelectItem>
+                              <SelectItem value="false">No (নরমাল ডেলিভারি চার্জ প্রযোজ্য)</SelectItem>
+                              <SelectItem value="true">Yes (ফ্রি ডেলিভারি - চার্জ নেই)</SelectItem>
                             </SelectContent>
                           </Select>
                         </FormControl>
@@ -789,7 +818,7 @@ export const ProductDetailsSheet: React.FC<Props> = ({ product }) => {
                     <div>
                       <Upload
                         listType="picture-card"
-                        beforeUpload={() => false}
+                        beforeUpload={beforeImageUpload}
                         fileList={thumbnailFileList}
                         onChange={handleThumbnailFileChange}
                         multiple={false}
@@ -839,7 +868,7 @@ export const ProductDetailsSheet: React.FC<Props> = ({ product }) => {
                     <div>
                       <Upload
                         listType="picture-card"
-                        beforeUpload={() => false}
+                        beforeUpload={beforeImageUpload}
                         fileList={backViewFileList}
                         onChange={handleBackViewFileChange}
                         multiple={false}
@@ -889,12 +918,9 @@ export const ProductDetailsSheet: React.FC<Props> = ({ product }) => {
                     <div>
                       <Upload
                         listType="picture-card"
-                        beforeUpload={() => false}
+                        beforeUpload={beforeImageUpload}
                         fileList={imageFileList}
-                        onChange={({ fileList }) => {
-                          setImageFileList(fileList);
-                          form.setValue("images", fileList);
-                        }}
+                        onChange={handleImageFileChange}
                       >
                         <div>
                           <UploadOutlined />
@@ -941,7 +967,7 @@ export const ProductDetailsSheet: React.FC<Props> = ({ product }) => {
                     <div>
                       <Upload
                         listType="picture-card"
-                        beforeUpload={() => false}
+                        beforeUpload={beforeImageUpload}
                         fileList={sizeChartFileList}
                         onChange={handleSizeChartFileChange}
                         multiple={false}

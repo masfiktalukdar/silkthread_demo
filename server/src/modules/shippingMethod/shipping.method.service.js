@@ -200,12 +200,14 @@ class ShippingMethodService extends BaseService {
   }
 
   async updateShippingMethodStatus(id, status) {
-    if (!status) throw new NotFoundError("Status is required");
-    status = status === "true";
+    if (status === undefined || status === null || status === "") {
+      throw new NotFoundError("Status is required");
+    }
+    const boolStatus = status === "true" || status === true;
     const shippingMethod = await this.#repository.updateShippingMethodStatus(
       id,
       {
-        status: status,
+        status: boolStatus,
       }
     );
 

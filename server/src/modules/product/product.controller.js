@@ -24,7 +24,7 @@ class ProductController {
         discountType: ensureNullIfUndefined(req.body.discountType),
         discount: req.body.discount,
         videoUrl: req.body.videoUrl,
-        freeShipping: req.body.freeShipping,
+        freeShipping: req.body.freeShipping === "true" || req.body.freeShipping === true,
         brandRef: ensureNullIfUndefined(req.body.brandRef),
         categoryRef: ensureNullIfUndefined(req.body.categoryRef),
         subCategoryRef: ensureNullIfUndefined(req.body.subCategoryRef),
@@ -83,6 +83,7 @@ class ProductController {
     const data = {
       result: productResult?.product,
       category: productResult?.subCategory,
+      sections: productResult?.sections || [],
     };
     const resDoc = responseHandler(200, "Get All Products", data);
     res.status(resDoc.statusCode).json(resDoc);
@@ -113,6 +114,8 @@ class ProductController {
       sortBy: req.query.sortBy, // e.g., 'name', 'mrpPrice', 'createdAt'
       minPrice: req.query.minPrice, // Minimum price for filtering
       maxPrice: req.query.maxPrice,
+      search: req.query.search || req.query.searchTerm,
+      searchTerm: req.query.searchTerm || req.query.search,
       categoryId: req.query.categoryId,
       categorySlug: req.query.categorySlug,
       subCategoryId: req.query.subCategoryId,
@@ -197,7 +200,7 @@ class ProductController {
         discountType: ensureNullIfUndefined(req.body.discountType),
         discount: ensureNullIfUndefined(req.body.discount),
         videoUrl: req.body.videoUrl,
-        freeShipping: req.body.freeShipping,
+        freeShipping: req.body.freeShipping === "true" || req.body.freeShipping === true,
         brandRef: ensureNullIfUndefined(req.body.brandRef),
         categoryRef: ensureNullIfUndefined(req.body.categoryRef),
         subCategoryRef: ensureNullIfUndefined(req.body.subCategoryRef),

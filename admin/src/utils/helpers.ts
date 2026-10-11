@@ -1,4 +1,5 @@
 import { Table } from "@tanstack/react-table";
+import { BASE_URL } from "@/config/config";
 
 export function makeInitials(name: string) {
   const initials = name
@@ -95,8 +96,25 @@ export function filenameGenerator(filename: string, key: string, dir: string) {
   return `${dir}/${key}-${randomString}-${currentTimestampString}.${extension}`;
 }
 
-export function fileUrlGenerator(filename: string) {
-  return `${process.env.NEXT_PUBLIC_API_BASE_URL}${filename}`;
+export const FALLBACK_IMAGE_URL =
+  "https://res.cloudinary.com/wpttnkjq/image/upload/v1786514995/placeholder_vnae7z.svg";
+
+export function fileUrlGenerator(filename?: string | null) {
+  if (
+    !filename ||
+    filename === "null" ||
+    filename === "undefined" ||
+    filename.trim() === "" ||
+    filename.endsWith("/null") ||
+    filename.endsWith("/undefined")
+  ) {
+    return FALLBACK_IMAGE_URL;
+  }
+  if (filename.startsWith("http://") || filename.startsWith("https://")) {
+    return filename;
+  }
+  const cleanPath = filename.startsWith("/") ? filename : `/${filename}`;
+  return `${BASE_URL}${cleanPath}`;
 }
 
 export function isValidUrl(url: string) {

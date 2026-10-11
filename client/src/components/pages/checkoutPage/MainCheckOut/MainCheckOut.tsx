@@ -21,7 +21,6 @@ const MainCheckOut = () => {
         const user = await getUser();
         const userId = user?.id;
         const products = await getCartProducts(userId, coupon || "");
-        toast.success(products?.message || "Products fetched successfully")
 
 
         // set state here if needed
@@ -38,12 +37,12 @@ const MainCheckOut = () => {
 
   return (
     <div className="min-h-screen">
-      {products && <div className="flex lg:flex-row flex-col-reverse  Container xl:mx-20 py-6 md:my-7 xl:gap-30 gap-8 relative">
+      {products && <div className="flex lg:flex-row flex-col-reverse Container py-6 md:my-7 xl:gap-24 gap-8 relative">
         <div className="lg:w-3/5 w-full">
           {products && (
             <CheckOutForm
               products={products}
-              userRef={String(userId)}
+              userRef={userId || ""}
               shipping={shipping}
               setShipping={setShipping}
               setCoupon={setCoupon} type={function (value: React.SetStateAction<string | null>): void {

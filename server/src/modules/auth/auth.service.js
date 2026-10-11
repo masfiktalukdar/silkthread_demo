@@ -59,9 +59,9 @@ class AuthService extends BaseService {
     }
 
     async authUserSignIn(payload) {
-        const { email, phone, password } = payload;
+        const { email, phone, password, identifier } = payload;
 
-        const auth = await this.#repository.getAuthByEmailOrPhone(email, phone);
+        const auth = await this.#repository.getAuthByEmailOrPhone(email, phone, identifier);
         if (!auth) throw new NotFoundError('unauthorized access');
         const isPasswordMatch = await bcrypt.compare(String(password), auth?.password);
         if (!isPasswordMatch) throw new NotFoundError('unauthorized access');
@@ -69,6 +69,12 @@ class AuthService extends BaseService {
             id: auth?._id || null,
             name: auth?.name || null,
             email: auth?.email || null,
+            phone: auth?.phone || null,
+            division: auth?.division || auth?.state || null,
+            district: auth?.district || auth?.city || null,
+            thana: auth?.thana || null,
+            fullAddress: auth?.fullAddress || auth?.address || null,
+            address: auth?.address || auth?.fullAddress || null,
             roleRef: auth?.roleRef?._id || null,
             role: auth?.roleRef?.role || null,
             warehouseRef: auth?.warehouseRef?._id || null,

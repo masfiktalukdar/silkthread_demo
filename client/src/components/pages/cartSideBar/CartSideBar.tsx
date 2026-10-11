@@ -1,6 +1,6 @@
 "use client";
 import CartDelete from "@/components/actionButton/CartDelete";
-import { apiBaseUrl } from "@/config/config";
+import { apiBaseUrl, getImageUrl } from "@/config/config";
 import Image from "next/image";
 import React, { useState } from "react";
 import { FaXmark } from "react-icons/fa6";
@@ -78,7 +78,7 @@ const CartSideBar: React.FC<Props> = ({ cartProducts }) => {
                       <Image
                         height={100}
                         width={100}
-                        src={apiBaseUrl + product?.product?.thumbnailImage}
+                        src={getImageUrl(product?.product?.thumbnailImage)}
                         alt={product?.product?.name}
                         className="w-20 h-20 object-cover"
                       />

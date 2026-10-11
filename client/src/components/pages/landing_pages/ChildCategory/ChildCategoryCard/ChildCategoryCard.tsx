@@ -1,5 +1,5 @@
 import { fjallaOne } from "@/app/font";
-import { apiBaseUrl } from "@/config/config";
+import { apiBaseUrl, getImageUrl } from "@/config/config";
 import { TChildCategory } from "@/types";
 import Image from "next/image";
 import Link from "next/link";
@@ -16,7 +16,7 @@ const ChildCategoryCard: React.FC<ChildCategoryProps> = ({ childCategory }) => {
     <div className="text-center relative group overflow-hidden rounded">
       <Link href={`/shop?childCategory=${slug || _id}`}>
         <Image
-          src={bannerImage ? apiBaseUrl + bannerImage : "/default-image.png"}
+          src={getImageUrl(bannerImage)}
           alt={name}
           width={500}
           height={500}

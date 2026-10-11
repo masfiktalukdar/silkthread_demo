@@ -135,6 +135,22 @@ const Orderschema = new Schema(
     note: {
       type: String,
     },
+
+    // Courier Integration Fields (Pathao / Steadfast)
+    consignmentId: {
+      type: String,
+      index: true,
+    },
+    courierName: {
+      type: String,
+      default: "pathao",
+    },
+    courierStatus: {
+      type: String,
+    },
+    courierTrackingData: {
+      type: mongoose.Schema.Types.Mixed,
+    },
   },
   { timestamps: true }
 );

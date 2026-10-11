@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import {  motion } from "framer-motion";
-import {  TShopSideBar } from "@/types";
+import { motion } from "framer-motion";
+import { TShopSideBar } from "@/types";
 import { usePathname } from "next/navigation";
 import { getShopSidebar } from "@/services/shopSidebar";
 import ShopPageSidebar from "./ShopPageSidebar";
@@ -57,7 +57,7 @@ const ResponsiveNavSidBar: React.FC<ResponsiveNavSidBarProps> = ({
         ) : (
           <AllPageSidebar shopSideBar={shopSideBar} />
         )}
-        
+
       </motion.div>
     </>
   );
